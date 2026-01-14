@@ -60,6 +60,26 @@ def _generic_get_name(node: "Node") -> str | None:
         if name_node and name_node.text:
             return name_node.text.decode(cs.ENCODING_UTF8)
 
+    # (H) Kotlin uses type_identifier for class names
+    if node.type in cs.SPEC_KOTLIN_CLASS_TYPES:
+        type_identifier_node = node.child_by_field_name("type_identifier")
+        if type_identifier_node and type_identifier_node.text:
+            return type_identifier_node.text.decode(cs.ENCODING_UTF8)
+
+        # (H) For generic classes, the type_identifier might be a direct child
+        # (H) Check all children for type_identifier nodes (but skip type_parameters)
+        for child in node.children:
+            if child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER and child.text:
+                # (H) Make sure it's not inside type_parameters
+                parent = child.parent
+                while parent and parent != node:
+                    if parent.type == "type_parameters":
+                        break
+                    parent = parent.parent
+                else:
+                    # (H) Not inside type_parameters, this is the class name
+                    return child.text.decode(cs.ENCODING_UTF8)
+
     return None
 
 
@@ -145,6 +165,13 @@ JAVA_FQN_SPEC = FQNSpec(
     file_to_module_parts=_generic_file_to_module,
 )
 
+KOTLIN_FQN_SPEC = FQNSpec(
+    scope_node_types=frozenset(cs.FQN_KOTLIN_SCOPE_TYPES),
+    function_node_types=frozenset(cs.FQN_KOTLIN_FUNCTION_TYPES),
+    get_name=_generic_get_name,
+    file_to_module_parts=_generic_file_to_module,
+)
+
 CPP_FQN_SPEC = FQNSpec(
     scope_node_types=frozenset(cs.FQN_CPP_SCOPE_TYPES),
     function_node_types=frozenset(cs.FQN_CPP_FUNCTION_TYPES),
@@ -193,6 +220,7 @@ LANGUAGE_FQN_SPECS: dict[cs.SupportedLanguage, FQNSpec] = {
     cs.SupportedLanguage.TS: TS_FQN_SPEC,
     cs.SupportedLanguage.RUST: RUST_FQN_SPEC,
     cs.SupportedLanguage.JAVA: JAVA_FQN_SPEC,
+    cs.SupportedLanguage.KOTLIN: KOTLIN_FQN_SPEC,
     cs.SupportedLanguage.CPP: CPP_FQN_SPEC,
     cs.SupportedLanguage.LUA: LUA_FQN_SPEC,
     cs.SupportedLanguage.GO: GO_FQN_SPEC,
@@ -339,6 +367,26 @@ LANGUAGE_SPECS: dict[cs.SupportedLanguage, LanguageSpec] = {
             name: (identifier) @name) @call
         (object_creation_expression
             type: (type_identifier) @name) @call
+        """,
+    ),
+    cs.SupportedLanguage.KOTLIN: LanguageSpec(
+        language=cs.SupportedLanguage.KOTLIN,
+        file_extensions=cs.KOTLIN_EXTENSIONS,
+        function_node_types=cs.SPEC_KOTLIN_FUNCTION_TYPES,
+        class_node_types=cs.SPEC_KOTLIN_CLASS_TYPES,
+        module_node_types=cs.SPEC_KOTLIN_MODULE_TYPES,
+        call_node_types=cs.SPEC_KOTLIN_CALL_TYPES,
+        import_node_types=cs.SPEC_KOTLIN_IMPORT_TYPES,
+        import_from_node_types=cs.SPEC_KOTLIN_IMPORT_TYPES,
+        function_query="""
+        (function_declaration) @function
+        """,
+        class_query="""
+        (class_declaration) @class
+        (object_declaration) @class
+        """,
+        call_query="""
+        (call_expression) @call
         """,
     ),
     cs.SupportedLanguage.CPP: LanguageSpec(

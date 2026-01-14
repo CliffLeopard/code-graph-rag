@@ -201,7 +201,16 @@ class ClassIngestMixin:
         language: cs.SupportedLanguage,
         lang_queries: LanguageQueries,
     ) -> None:
+        # (H) Kotlin uses "class_body" as a child node (not a field)
         body_node = class_node.child_by_field_name("body")
+        if not body_node and language == cs.SupportedLanguage.KOTLIN:
+            body_node = class_node.child_by_field_name("class_body")
+            # (H) If not found as field, try to find by type
+            if not body_node:
+                for child in class_node.children:
+                    if child.type == "class_body":
+                        body_node = child
+                        break
         method_query = lang_queries[cs.QUERY_FUNCTIONS]
         if not body_node or not method_query:
             return

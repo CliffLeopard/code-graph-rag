@@ -90,6 +90,18 @@ def extract_class_name(class_node: Node) -> str | None:
     if name_node and name_node.text:
         return safe_decode_text(name_node)
 
+    # (H) Kotlin uses type_identifier for class names
+    if class_node.type in cs.SPEC_KOTLIN_CLASS_TYPES:
+        type_identifier_node = class_node.child_by_field_name("type_identifier")
+        if type_identifier_node and type_identifier_node.text:
+            return safe_decode_text(type_identifier_node)
+
+        # (H) For generic classes, the type_identifier might be a direct child
+        # (H) Check all children for type_identifier nodes
+        for child in class_node.children:
+            if child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER and child.text:
+                return safe_decode_text(child)
+
     current = class_node.parent
     while current:
         if current.type == cs.TS_VARIABLE_DECLARATOR:

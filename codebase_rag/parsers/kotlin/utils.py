@@ -1,0 +1,581 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import TYPE_CHECKING, NamedTuple
+
+from tree_sitter import Node  # type: ignore[reportMissingImports]
+
+from ... import constants as cs
+from ...models import MethodModifiersAndAnnotations
+from ...types_defs import (
+    ASTNode,
+    JavaClassInfo,
+    JavaFieldInfo,
+    JavaMethodCallInfo,
+    JavaMethodInfo,
+)
+from ..utils import safe_decode_text
+
+if TYPE_CHECKING:
+    from ...types_defs import ASTCacheProtocol
+
+
+class ClassContext(NamedTuple):
+    module_qn: str
+    target_class_name: str
+    root_node: Node
+
+
+def get_root_node_from_module_qn(
+    module_qn: str,
+    module_qn_to_file_path: dict[str, Path],
+    ast_cache: ASTCacheProtocol,
+    min_parts: int = 2,
+) -> Node | None:
+    parts = module_qn.split(cs.SEPARATOR_DOT)
+    if len(parts) < min_parts:
+        return None
+
+    file_path = module_qn_to_file_path.get(module_qn)
+    if file_path is None or file_path not in ast_cache:
+        return None
+
+    root_node, _ = ast_cache[file_path]
+    return root_node
+
+
+def get_class_context_from_qn(
+    class_qn: str,
+    module_qn_to_file_path: dict[str, Path],
+    ast_cache: ASTCacheProtocol,
+) -> ClassContext | None:
+    parts = class_qn.split(cs.SEPARATOR_DOT)
+    if len(parts) < 2:
+        return None
+
+    module_qn = cs.SEPARATOR_DOT.join(parts[:-1])
+    target_class_name = parts[-1]
+
+    root_node = get_root_node_from_module_qn(
+        module_qn, module_qn_to_file_path, ast_cache, min_parts=1
+    )
+    if root_node is None:
+        return None
+
+    return ClassContext(module_qn, target_class_name, root_node)
+
+
+def extract_package_name(package_node: ASTNode) -> str | None:
+    if package_node.type != cs.TS_KOTLIN_PACKAGE_HEADER:
+        return None
+
+    # (H) Kotlin package header contains a qualified_expression or simple_identifier
+    # (H) Look for the identifier path in the package header
+    def extract_qualified_parts(node: ASTNode) -> list[str]:
+        """Recursively extract parts from qualified_expression"""
+        parts = []
+        for child in node.children:
+            if child.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                if part := safe_decode_text(child):
+                    parts.append(part)
+            elif child.type == "qualified_expression":
+                # (H) Recursively extract from nested qualified_expression
+                nested_parts = extract_qualified_parts(child)
+                parts.extend(nested_parts)
+        return parts
+
+    for child in package_node.children:
+        if child.type == "qualified_expression":
+            parts = extract_qualified_parts(child)
+            if parts:
+                return cs.SEPARATOR_DOT.join(parts)
+        elif child.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+            if result := safe_decode_text(child):
+                return result
+        elif child.type in ["scoped_identifier", "identifier"]:
+            if result := safe_decode_text(child):
+                return result
+
+    return None
+
+
+def extract_import_path(import_node: ASTNode) -> dict[str, str]:
+    # (H) Kotlin uses import_list with import_directive children
+    if import_node.type == cs.TS_KOTLIN_IMPORT_LIST:
+        # (H) Process all import_directive children
+        imports: dict[str, str] = {}
+        for child in import_node.children:
+            if child.type == cs.TS_KOTLIN_IMPORT_DIRECTIVE:
+                imports.update(extract_import_path(child))
+        return imports
+
+    if import_node.type != cs.TS_KOTLIN_IMPORT_DIRECTIVE:
+        return {}
+
+    imports: dict[str, str] = {}
+    imported_path_parts: list[str] = []
+    is_wildcard = False
+    alias: str | None = None
+    seen_as = False
+
+    # (H) Handle import_directive - extract qualified path
+    # (H) Process children in order to handle: qualified_path [as alias] or qualified_path.*
+    children_list = list(import_node.children)
+    i = 0
+    while i < len(children_list):
+        child = children_list[i]
+        if child.type == "qualified_expression":
+            # (H) Extract full qualified name
+            parts = []
+
+            def extract_qualified(node: ASTNode) -> None:
+                for subchild in node.children:
+                    if subchild.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                        if part := safe_decode_text(subchild):
+                            parts.append(part)
+                    elif subchild.type == "qualified_expression":
+                        extract_qualified(subchild)
+
+            extract_qualified(child)
+            imported_path_parts = parts
+        elif child.type in [cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "scoped_identifier"]:
+            # (H) Check if this is an alias (comes after "as")
+            if seen_as and not alias:
+                alias = safe_decode_text(child)
+            elif not imported_path_parts:  # (H) First identifier (not alias)
+                if part := safe_decode_text(child):
+                    imported_path_parts.append(part)
+        elif child.type == "asterisk":
+            is_wildcard = True
+        elif child.type == "as":
+            seen_as = True
+        i += 1
+
+    if not imported_path_parts:
+        return imports
+
+    imported_path = cs.SEPARATOR_DOT.join(imported_path_parts)
+
+    if is_wildcard:
+        wildcard_key = f"*{imported_path}"
+        imports[wildcard_key] = imported_path
+    elif alias:
+        imports[alias] = imported_path
+    else:
+        imported_name = imported_path_parts[-1]
+        imports[imported_name] = imported_path
+
+    return imports
+
+
+def _extract_superclass(class_node: ASTNode) -> str | None:
+    # (H) Kotlin uses delegation_specifiers for classes with superclass
+    # (H) For classes, first delegation_specifier is the superclass
+    delegation_node = class_node.child_by_field_name("delegation_specifiers")
+    if delegation_node:
+        # (H) Get first delegation_specifier (it's the superclass for classes)
+        specifiers = [
+            child
+            for child in delegation_node.children
+            if child.type == "delegation_specifier"
+        ]
+        if specifiers and class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
+            # (H) First one is superclass
+            return _extract_type_from_node(specifiers[0])
+
+    # (H) Also check supertype field (fallback)
+    supertype_node = class_node.child_by_field_name("supertype")
+    if supertype_node:
+        return _extract_type_from_node(supertype_node)
+
+    return None
+
+
+def _extract_type_from_node(node: ASTNode) -> str | None:
+    """Extract type name from a type node (user_type, type_identifier, etc.)"""
+    if node.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+        return safe_decode_text(node)
+    elif node.type == cs.TS_KOTLIN_USER_TYPE:
+        # (H) user_type contains type_identifier or nested user_type
+        parts = []
+        for child in node.children:
+            if child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+                if part := safe_decode_text(child):
+                    parts.append(part)
+            elif child.type == cs.TS_KOTLIN_USER_TYPE:
+                if nested_type := _extract_type_from_node(child):
+                    parts.append(nested_type)
+        return cs.SEPARATOR_DOT.join(parts) if parts else None
+    elif node.type == "delegation_specifier":
+        # (H) Extract type from delegation_specifier
+        for child in node.children:
+            if result := _extract_type_from_node(child):
+                return result
+    return None
+
+
+def _extract_interface_name(type_child: ASTNode) -> str | None:
+    return _extract_type_from_node(type_child)
+
+
+def _extract_interfaces(class_node: ASTNode) -> list[str]:
+    # (H) Kotlin uses delegation_specifiers for both superclass and interfaces
+    # (H) Interfaces come after the superclass (if any)
+    interfaces: list[str] = []
+
+    delegation_node = class_node.child_by_field_name("delegation_specifiers")
+    if delegation_node:
+        # (H) Get all delegation_specifier children
+        specifiers = [
+            child
+            for child in delegation_node.children
+            if child.type == "delegation_specifier"
+        ]
+        # (H) For classes: first is superclass, rest are interfaces
+        # (H) For interfaces: all are parent interfaces
+        start_idx = 1 if class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION else 0
+        for specifier in specifiers[start_idx:]:
+            if interface_name := _extract_type_from_node(specifier):
+                interfaces.append(interface_name)
+
+    # (H) Also check supertype field (for interface declarations)
+    supertype_node = class_node.child_by_field_name("supertype")
+    if supertype_node and class_node.type == cs.TS_KOTLIN_INTERFACE_DECLARATION:
+        for child in supertype_node.children:
+            if interface_name := _extract_interface_name(child):
+                interfaces.append(interface_name)
+
+    return interfaces
+
+
+def _extract_type_parameters(class_node: ASTNode) -> list[str]:
+    type_params_node = class_node.child_by_field_name("type_parameters")
+    if not type_params_node:
+        return []
+
+    type_parameters: list[str] = []
+    for child in type_params_node.children:
+        if child.type == "type_parameter":
+            # (H) Kotlin type parameter name is in type_identifier field
+            name_node = child.child_by_field_name("name")
+            if not name_node:
+                name_node = child.child_by_field_name("type_identifier")
+            if name_node:
+                if param_name := safe_decode_text(name_node):
+                    type_parameters.append(param_name)
+
+    return type_parameters
+
+
+def extract_from_modifiers_node(
+    node: ASTNode, allowed_modifiers: frozenset[str]
+) -> MethodModifiersAndAnnotations:
+    result = MethodModifiersAndAnnotations()
+    # (H) Kotlin has a modifiers node that contains modifier and annotation children
+    modifiers_node = None
+    for child in node.children:
+        if child.type == "modifiers":
+            modifiers_node = child
+            break
+
+    if modifiers_node:
+        for modifier_child in modifiers_node.children:
+            if modifier_child.type == "modifier":
+                modifier_text = safe_decode_text(modifier_child)
+                if modifier_text:
+                    # (H) Check if it's an allowed modifier
+                    if modifier_text in allowed_modifiers or not allowed_modifiers:
+                        result.modifiers.append(modifier_text)
+            elif modifier_child.type == "annotation":
+                # (H) Extract annotation name from user_type
+                annotation_name = _extract_annotation_name(modifier_child)
+                if annotation_name:
+                    result.annotations.append(annotation_name)
+
+    # (H) Also check for direct annotation children (outside modifiers)
+    for child in node.children:
+        if child.type == "annotation":
+            annotation_name = _extract_annotation_name(child)
+            if annotation_name:
+                result.annotations.append(annotation_name)
+
+    return result
+
+
+def _extract_annotation_name(annotation_node: ASTNode) -> str | None:
+    """Extract annotation name from annotation node"""
+    # (H) Annotation contains user_type with type_identifier
+    for child in annotation_node.children:
+        if child.type == cs.TS_KOTLIN_USER_TYPE:
+            return _extract_type_from_node(child)
+        elif child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+            return safe_decode_text(child)
+    return None
+
+
+def _extract_class_modifiers(class_node: ASTNode) -> list[str]:
+    # (H) Kotlin has additional modifiers like 'data', 'sealed', 'open', 'inline', etc.
+    # (H) We extract all modifiers and filter later if needed
+    # (H) For now, we allow all modifiers since Kotlin-specific ones won't be in JAVA_CLASS_MODIFIERS
+    # (H) but will still be extracted by extract_from_modifiers_node
+    result = extract_from_modifiers_node(
+        class_node, frozenset()
+    )  # (H) Empty set = extract all
+    return result.modifiers
+
+
+def extract_class_info(class_node: ASTNode) -> JavaClassInfo:
+    if class_node.type not in cs.SPEC_KOTLIN_CLASS_TYPES:
+        return JavaClassInfo(
+            name=None,
+            type="",
+            superclass=None,
+            interfaces=[],
+            modifiers=[],
+            type_parameters=[],
+        )
+
+    name: str | None = None
+    # (H) Kotlin class name is in type_identifier field
+    if name_node := class_node.child_by_field_name(cs.TS_FIELD_NAME):
+        name = safe_decode_text(name_node)
+    elif name_node := class_node.child_by_field_name("type_identifier"):
+        name = safe_decode_text(name_node)
+
+    return JavaClassInfo(
+        name=name,
+        type=class_node.type.replace("_declaration", "").replace("_class", ""),
+        superclass=_extract_superclass(class_node),
+        interfaces=_extract_interfaces(class_node),
+        modifiers=_extract_class_modifiers(class_node),
+        type_parameters=_extract_type_parameters(class_node),
+    )
+
+
+def _get_method_type(method_node: ASTNode) -> str:
+    if method_node.type == cs.TS_KOTLIN_CONSTRUCTOR:
+        return cs.JAVA_TYPE_CONSTRUCTOR
+    return cs.JAVA_TYPE_METHOD
+
+
+def _extract_method_return_type(method_node: ASTNode) -> str | None:
+    if method_node.type != cs.TS_KOTLIN_FUNCTION_DECLARATION:
+        return None
+    # (H) Kotlin functions can have return type in "type" field or "return_type" field
+    if type_node := method_node.child_by_field_name(cs.TS_FIELD_TYPE):
+        # (H) Could be type_identifier, user_type, etc.
+        if type_node.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+            return safe_decode_text(type_node)
+        elif type_node.type == cs.TS_KOTLIN_USER_TYPE:
+            return _extract_type_from_node(type_node)
+        else:
+            return safe_decode_text(type_node)
+    # (H) Also check return_type field
+    if return_type_node := method_node.child_by_field_name("return_type"):
+        if return_type_node.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+            return safe_decode_text(return_type_node)
+        elif return_type_node.type == cs.TS_KOTLIN_USER_TYPE:
+            return _extract_type_from_node(return_type_node)
+        else:
+            return safe_decode_text(return_type_node)
+    # (H) Kotlin allows type inference - no explicit return type means Unit (void)
+    return None
+
+
+def _extract_formal_param_type(param_node: ASTNode) -> str | None:
+    """Extract parameter type from Kotlin parameter node"""
+    if param_type_node := param_node.child_by_field_name(cs.TS_FIELD_TYPE):
+        # (H) Handle different type node structures
+        if param_type_node.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+            return safe_decode_text(param_type_node)
+        elif param_type_node.type == cs.TS_KOTLIN_USER_TYPE:
+            return _extract_type_from_node(param_type_node)
+        else:
+            return safe_decode_text(param_type_node)
+    return None
+
+
+def _extract_method_parameters(method_node: ASTNode) -> list[str]:
+    params_node = method_node.child_by_field_name(cs.TS_FIELD_PARAMETERS)
+    if not params_node:
+        return []
+
+    parameters: list[str] = []
+    for child in params_node.children:
+        if child.type == cs.TS_KOTLIN_PARAMETER:
+            param_type: str | None = _extract_formal_param_type(child)
+            if param_type:
+                parameters.append(param_type)
+            else:
+                # (H) Kotlin allows type inference - use Any as placeholder
+                parameters.append(cs.JAVA_TYPE_OBJECT)
+
+    return parameters
+
+
+def extract_method_info(method_node: ASTNode) -> JavaMethodInfo:
+    if method_node.type not in cs.SPEC_KOTLIN_FUNCTION_TYPES:
+        return JavaMethodInfo(
+            name=None,
+            type="",
+            return_type=None,
+            parameters=[],
+            modifiers=[],
+            type_parameters=[],
+            annotations=[],
+        )
+
+    # (H) Kotlin has additional modifiers like 'inline', 'suspend', 'operator', etc.
+    # (H) Extract all modifiers (empty set means extract all)
+    mods_and_annots = extract_from_modifiers_node(method_node, frozenset())
+
+    # (H) Kotlin function name is in simple_identifier field
+    name_node = method_node.child_by_field_name(cs.TS_FIELD_NAME)
+    if not name_node:
+        name_node = method_node.child_by_field_name("simple_identifier")
+
+    return JavaMethodInfo(
+        name=safe_decode_text(name_node) if name_node else None,
+        type=_get_method_type(method_node),
+        return_type=_extract_method_return_type(method_node),
+        parameters=_extract_method_parameters(method_node),
+        modifiers=mods_and_annots.modifiers,
+        type_parameters=[],
+        annotations=mods_and_annots.annotations,
+    )
+
+
+def extract_field_info(field_node: ASTNode) -> JavaFieldInfo:
+    if field_node.type != cs.TS_KOTLIN_PROPERTY_DECLARATION:
+        return JavaFieldInfo(
+            name=None,
+            type=None,
+            modifiers=[],
+            annotations=[],
+        )
+
+    field_type: str | None = None
+    if type_node := field_node.child_by_field_name(cs.TS_FIELD_TYPE):
+        field_type = safe_decode_text(type_node)
+
+    name: str | None = None
+    # (H) Kotlin property name is in variable_declaration > simple_identifier
+    if variable_decl := field_node.child_by_field_name("variable_declaration"):
+        if name_node := variable_decl.child_by_field_name(cs.TS_FIELD_NAME):
+            name = safe_decode_text(name_node)
+        elif name_node := variable_decl.child_by_field_name("simple_identifier"):
+            name = safe_decode_text(name_node)
+    elif name_node := field_node.child_by_field_name(cs.TS_FIELD_NAME):
+        name = safe_decode_text(name_node)
+    elif name_node := field_node.child_by_field_name("simple_identifier"):
+        name = safe_decode_text(name_node)
+
+    # (H) Kotlin properties can have modifiers like 'lateinit', 'const', etc.
+    # (H) Extract all modifiers (empty set means extract all)
+    mods_and_annots = extract_from_modifiers_node(field_node, frozenset())
+
+    return JavaFieldInfo(
+        name=name,
+        type=field_type,
+        modifiers=mods_and_annots.modifiers,
+        annotations=mods_and_annots.annotations,
+    )
+
+
+def extract_method_call_info(call_node: ASTNode) -> JavaMethodCallInfo | None:
+    if call_node.type not in [
+        cs.TS_KOTLIN_CALL_EXPRESSION,
+        cs.TS_KOTLIN_NAVIGATION_EXPRESSION,
+    ]:
+        return None
+
+    name: str | None = None
+    obj: str | None = None
+
+    # (H) Kotlin call expressions structure:
+    # (H) call_expression > value (navigation_expression or simple_identifier) > arguments
+    if call_node.type == cs.TS_KOTLIN_CALL_EXPRESSION:
+        value_node = call_node.child_by_field_name("value")
+        if value_node:
+            if value_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                name = safe_decode_text(value_node)
+            elif value_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+                # (H) navigation_expression.field is the method name
+                if field_node := value_node.child_by_field_name("field"):
+                    if field_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                        name = safe_decode_text(field_node)
+                # (H) navigation_expression.receiver is the object
+                if receiver_node := value_node.child_by_field_name("receiver"):
+                    if receiver_node.type == "this":
+                        obj = "this"
+                    elif receiver_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                        obj = safe_decode_text(receiver_node)
+                    elif receiver_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+                        # (H) Recursively extract from nested navigation
+                        if nested_field := receiver_node.child_by_field_name("field"):
+                            if nested_field.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                                obj = safe_decode_text(nested_field)
+    elif call_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+        # (H) Direct navigation expression (property access, not call)
+        if field_node := call_node.child_by_field_name("field"):
+            if field_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                name = safe_decode_text(field_node)
+        if receiver_node := call_node.child_by_field_name("receiver"):
+            if receiver_node.type == "this":
+                obj = "this"
+            elif receiver_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                obj = safe_decode_text(receiver_node)
+
+    arguments = 0
+    # (H) Kotlin call expressions have value_arguments or arguments field
+    args_node = call_node.child_by_field_name(cs.TS_FIELD_ARGUMENTS)
+    if not args_node:
+        args_node = call_node.child_by_field_name("value_arguments")
+
+    if args_node:
+        # (H) Count actual argument expressions, skip delimiters
+        arguments = sum(
+            1
+            for child in args_node.children
+            if child.type not in cs.DELIMITER_TOKENS and child.type != "value_argument"
+        )
+        # (H) Also count value_argument nodes (Kotlin specific)
+        if not arguments:
+            arguments = sum(
+                1 for child in args_node.children if child.type == "value_argument"
+            )
+
+    return JavaMethodCallInfo(name=name, object=obj, arguments=arguments)
+
+
+def find_package_start_index(parts: list[str]) -> int | None:
+    for i, part in enumerate(parts):
+        if part in cs.JAVA_JVM_LANGUAGES and i > 0:
+            return i + 1
+
+        if part == cs.JAVA_PATH_SRC and i + 1 < len(parts):
+            next_part = parts[i + 1]
+
+            if (
+                next_part not in cs.JAVA_JVM_LANGUAGES
+                and next_part not in cs.JAVA_SRC_FOLDERS
+            ):
+                return i + 1
+
+            if _is_non_standard_java_src_layout(parts, i):
+                return i + 1
+
+    return None
+
+
+def _is_non_standard_java_src_layout(parts: list[str], src_idx: int) -> bool:
+    if src_idx + 2 >= len(parts):
+        return False
+
+    next_part = parts[src_idx + 1]
+    part_after_next = parts[src_idx + 2]
+
+    return (
+        next_part in (cs.JAVA_PATH_MAIN, cs.JAVA_PATH_TEST)
+        and part_after_next not in cs.JAVA_JVM_LANGUAGES
+    )

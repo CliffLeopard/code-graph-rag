@@ -4,8 +4,8 @@ import sys
 from copy import deepcopy
 from pathlib import Path
 
-from loguru import logger
-from tree_sitter import Language, Parser, Query
+from loguru import logger  # type: ignore[reportMissingImports]
+from tree_sitter import Language, Parser, Query  # type: ignore[reportMissingImports]
 
 from . import constants as cs
 from . import exceptions as ex
@@ -138,6 +138,12 @@ def _import_language_loaders() -> dict[cs.SupportedLanguage, LanguageLoader]:
             cs.SupportedLanguage.JAVA,
         ),
         LanguageImport(
+            cs.SupportedLanguage.KOTLIN,
+            cs.TreeSitterModule.KOTLIN,
+            cs.QUERY_LANGUAGE,
+            cs.SupportedLanguage.KOTLIN,
+        ),
+        LanguageImport(
             cs.SupportedLanguage.CPP,
             cs.TreeSitterModule.CPP,
             cs.QUERY_LANGUAGE,
@@ -203,7 +209,13 @@ def _build_combined_import_pattern(lang_config: LanguageSpec) -> str:
 
 
 def _create_optional_query(language: Language, pattern: str | None) -> Query | None:
-    return Query(language, pattern) if pattern else None
+    if not pattern:
+        return None
+    try:
+        return Query(language, pattern)
+    except Exception as e:
+        logger.debug(f"Failed to create query with pattern '{pattern[:50]}...': {e}")
+        return None
 
 
 def _create_locals_query(
