@@ -72,6 +72,7 @@ EXT_GO = ".go"
 EXT_SCALA = ".scala"
 EXT_SC = ".sc"
 EXT_JAVA = ".java"
+EXT_KOTLIN = ".kt"
 EXT_CLASS = ".class"
 EXT_CPP = ".cpp"
 EXT_H = ".h"
@@ -95,6 +96,7 @@ RS_EXTENSIONS = (EXT_RS,)
 GO_EXTENSIONS = (EXT_GO,)
 SCALA_EXTENSIONS = (EXT_SCALA, EXT_SC)
 JAVA_EXTENSIONS = (EXT_JAVA,)
+KOTLIN_EXTENSIONS = (EXT_KOTLIN,)
 CPP_EXTENSIONS = (
     EXT_CPP,
     EXT_H,
@@ -431,6 +433,7 @@ class SupportedLanguage(StrEnum):
     GO = "go"
     SCALA = "scala"
     JAVA = "java"
+    KOTLIN = "kotlin"
     CPP = "cpp"
     CSHARP = "c-sharp"
     PHP = "php"
@@ -484,6 +487,11 @@ LANGUAGE_METADATA: dict[SupportedLanguage, LanguageMetadata] = {
         "Generics, annotations, modern features (records/sealed classes), concurrency, reflection",
         "Java",
     ),
+    SupportedLanguage.KOTLIN: LanguageMetadata(
+        LanguageStatus.FULL,
+        "Data classes, sealed classes, coroutines, extension functions, null safety, type inference",
+        "Kotlin",
+    ),
     SupportedLanguage.GO: LanguageMetadata(
         LanguageStatus.DEV,
         "Methods, type declarations",
@@ -497,7 +505,7 @@ LANGUAGE_METADATA: dict[SupportedLanguage, LanguageMetadata] = {
     SupportedLanguage.CSHARP: LanguageMetadata(
         LanguageStatus.DEV,
         "Classes, interfaces, generics (planned)",
-        "C#",
+        "C# (H) ",
     ),
     SupportedLanguage.PHP: LanguageMetadata(
         LanguageStatus.DEV,
@@ -680,7 +688,7 @@ MULTILINE_INPUT_HINT = "(Press Ctrl+J to submit, Enter for new line)"
 # (H) Interactive setup prompt - grouped view
 INTERACTIVE_TITLE_GROUPED = "Detected Directories (will be excluded unless kept)"
 INTERACTIVE_TITLE_NESTED = "Nested paths in '{pattern}'"
-INTERACTIVE_COL_NUM = "#"
+INTERACTIVE_COL_NUM = "# (H) "
 INTERACTIVE_COL_PATTERN = "Pattern"
 INTERACTIVE_COL_NESTED = "Nested"
 INTERACTIVE_COL_PATH = "Path"
@@ -729,6 +737,7 @@ class TreeSitterModule(StrEnum):
     GO = "tree_sitter_go"
     SCALA = "tree_sitter_scala"
     JAVA = "tree_sitter_java"
+    KOTLIN = "tree_sitter_kotlin"
     CPP = "tree_sitter_cpp"
     LUA = "tree_sitter_lua"
 
@@ -907,7 +916,7 @@ ALLOWED_COMMENT_MARKERS = frozenset(
 )
 QUOTE_CHARS = frozenset({'"', "'"})
 TRIPLE_QUOTES = ('"""', "'''")
-COMMENT_CHAR = "#"
+COMMENT_CHAR = "# (H) "
 ESCAPE_CHAR = "\\"
 CHAR_SEMICOLON = ";"
 CHAR_COMMA = ","
@@ -1898,6 +1907,33 @@ TS_RECORD_DECLARATION = "record_declaration"
 TS_TRUE = "true"
 TS_FALSE = "false"
 
+# (H) Kotlin tree-sitter node types
+TS_KOTLIN_SOURCE_FILE = "source_file"  # (H) Root node type for Kotlin files
+TS_KOTLIN_FUNCTION_DECLARATION = "function_declaration"
+TS_KOTLIN_CLASS_DECLARATION = "class_declaration"
+TS_KOTLIN_OBJECT_DECLARATION = "object_declaration"
+TS_KOTLIN_INTERFACE_DECLARATION = "interface_declaration"
+TS_KOTLIN_ENUM_CLASS = "enum_class"
+TS_KOTLIN_DATA_CLASS = (
+    "class_declaration"  # (H) data class uses class_declaration with modifiers
+)
+TS_KOTLIN_CALL_EXPRESSION = "call_expression"
+TS_KOTLIN_NAVIGATION_EXPRESSION = "navigation_expression"
+TS_KOTLIN_IMPORT_LIST = "import_list"
+TS_KOTLIN_IMPORT_DIRECTIVE = "import_directive"
+TS_KOTLIN_PACKAGE_HEADER = "package_header"
+TS_KOTLIN_PROPERTY_DECLARATION = "property_declaration"
+TS_KOTLIN_CONSTRUCTOR = "constructor_declaration"
+TS_KOTLIN_SIMPLE_IDENTIFIER = (
+    "simple_identifier"  # (H) Kotlin uses simple_identifier, not identifier
+)
+TS_KOTLIN_TYPE_IDENTIFIER = "type_identifier"
+TS_KOTLIN_USER_TYPE = "user_type"
+TS_KOTLIN_PARAMETER = "parameter"  # (H) Kotlin uses "parameter", not "formal_parameter"
+TS_KOTLIN_COMPANION_OBJECT = "companion_object"
+TS_KOTLIN_TYPE_ALIAS = "type_alias"
+TS_KOTLIN_LAMBDA_LITERAL = "lambda_literal"
+
 # (H) Tree-sitter field names for child_by_field_name
 TS_FIELD_NAME = "name"
 TS_FIELD_TYPE = "type"
@@ -2164,15 +2200,15 @@ JS_PROTOTYPE_INHERITANCE_QUERY = """
 (assignment_expression
   left: (member_expression
     object: (identifier) @child_class
-    property: (property_identifier) @prototype (#eq? @prototype "prototype"))
+    property: (property_identifier) @prototype (# (H) eq? @prototype "prototype"))
   right: (call_expression
     function: (member_expression
-      object: (identifier) @object_name (#eq? @object_name "Object")
-      property: (property_identifier) @create_method (#eq? @create_method "create"))
+      object: (identifier) @object_name (# (H) eq? @object_name "Object")
+      property: (property_identifier) @create_method (# (H) eq? @create_method "create"))
     arguments: (arguments
       (member_expression
         object: (identifier) @parent_class
-        property: (property_identifier) @parent_prototype (#eq? @parent_prototype "prototype")))))
+        property: (property_identifier) @parent_prototype (# (H) eq? @parent_prototype "prototype")))))
 """
 
 # (H) JS prototype method assignment query
@@ -2181,7 +2217,7 @@ JS_PROTOTYPE_METHOD_QUERY = """
   left: (member_expression
     object: (member_expression
       object: (identifier) @constructor_name
-      property: (property_identifier) @prototype_keyword (#eq? @prototype_keyword "prototype"))
+      property: (property_identifier) @prototype_keyword (# (H) eq? @prototype_keyword "prototype"))
     property: (property_identifier) @method_name)
   right: (function_expression) @method_function)
 """
@@ -2250,7 +2286,7 @@ JS_COMMONJS_DESTRUCTURE_QUERY = """
   (variable_declarator
     name: (object_pattern)
     value: (call_expression
-      function: (identifier) @func (#eq? @func "require")
+      function: (identifier) @func (# (H) eq? @func "require")
     )
   ) @variable_declarator
 )
@@ -2404,7 +2440,7 @@ MCP_DEFAULT_DIRECTORY = "."
 MCP_JSON_INDENT = 2
 MCP_LOG_LEVEL_INFO = "INFO"
 MCP_LOG_FORMAT = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>"
-MCP_PAGINATION_HEADER = "# Lines {start}-{end} of {total}\n"
+MCP_PAGINATION_HEADER = "# (H) Lines {start}-{end} of {total}\n"
 
 # (H) MCP response messages
 MCP_INDEX_SUCCESS = "Successfully indexed repository at {path}. Knowledge graph has been updated (previous data cleared)."
@@ -2499,6 +2535,19 @@ FQN_JAVA_SCOPE_TYPES = (
 FQN_JAVA_FUNCTION_TYPES = (
     TS_METHOD_DECLARATION,
     TS_CONSTRUCTOR_DECLARATION,
+)
+
+# (H) FQN node type tuples for Kotlin
+FQN_KOTLIN_SCOPE_TYPES = (
+    TS_KOTLIN_CLASS_DECLARATION,
+    TS_KOTLIN_INTERFACE_DECLARATION,
+    TS_KOTLIN_ENUM_CLASS,
+    TS_KOTLIN_OBJECT_DECLARATION,
+    TS_KOTLIN_SOURCE_FILE,
+)
+FQN_KOTLIN_FUNCTION_TYPES = (
+    TS_KOTLIN_FUNCTION_DECLARATION,
+    TS_KOTLIN_CONSTRUCTOR,
 )
 
 # (H) FQN node type tuples for C++
@@ -2670,6 +2719,21 @@ SPEC_JAVA_CLASS_TYPES = (
 SPEC_JAVA_MODULE_TYPES = (TS_PROGRAM,)
 SPEC_JAVA_CALL_TYPES = (TS_JAVA_METHOD_INVOCATION,)
 SPEC_JAVA_IMPORT_TYPES = (TS_IMPORT_DECLARATION,)
+
+# (H) LANGUAGE_SPECS node type tuples for Kotlin
+SPEC_KOTLIN_FUNCTION_TYPES = (
+    TS_KOTLIN_FUNCTION_DECLARATION,
+    TS_KOTLIN_CONSTRUCTOR,
+)
+SPEC_KOTLIN_CLASS_TYPES = (
+    TS_KOTLIN_CLASS_DECLARATION,
+    TS_KOTLIN_INTERFACE_DECLARATION,
+    TS_KOTLIN_ENUM_CLASS,
+    TS_KOTLIN_OBJECT_DECLARATION,
+)
+SPEC_KOTLIN_MODULE_TYPES = (TS_KOTLIN_SOURCE_FILE,)
+SPEC_KOTLIN_CALL_TYPES = (TS_KOTLIN_CALL_EXPRESSION, TS_KOTLIN_NAVIGATION_EXPRESSION)
+SPEC_KOTLIN_IMPORT_TYPES = (TS_KOTLIN_IMPORT_LIST,)
 
 # (H) LANGUAGE_SPECS node type tuples for C++
 SPEC_CPP_FUNCTION_TYPES = (

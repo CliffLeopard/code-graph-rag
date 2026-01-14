@@ -90,6 +90,30 @@ def ingest_method(
         method_name = cpp_utils.extract_function_name(method_node)
         if not method_name:
             return
+    elif language == cs.SupportedLanguage.KOTLIN:
+        # (H) Kotlin uses "name" field which contains a simple_identifier node
+        method_name_node = method_node.child_by_field_name("name")
+        if method_name_node:
+            # (H) The name field contains a simple_identifier node
+            # (H) Try to find simple_identifier in children
+            simple_id = None
+            for child in method_name_node.children:
+                if child.type == "simple_identifier":
+                    simple_id = child
+                    break
+            if simple_id and (text := simple_id.text):
+                method_name = text.decode(cs.ENCODING_UTF8)
+            elif text := method_name_node.text:
+                # (H) Fallback to name node text if no simple_identifier found
+                method_name = text.decode(cs.ENCODING_UTF8)
+            else:
+                return
+        else:
+            # (H) Try direct simple_identifier field as fallback
+            method_name_node = method_node.child_by_field_name("simple_identifier")
+            if not method_name_node or (text := method_name_node.text) is None:
+                return
+            method_name = text.decode(cs.ENCODING_UTF8)
     elif not (method_name_node := method_node.child_by_field_name(cs.FIELD_NAME)):
         return
     elif (text := method_name_node.text) is None:

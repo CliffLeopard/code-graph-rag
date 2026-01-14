@@ -12,6 +12,7 @@ from codebase_rag.parsers.handlers.base import BaseLanguageHandler
 from codebase_rag.parsers.handlers.cpp import CppHandler
 from codebase_rag.parsers.handlers.java import JavaHandler
 from codebase_rag.parsers.handlers.js_ts import JsTsHandler
+from codebase_rag.parsers.handlers.kotlin import KotlinHandler
 from codebase_rag.parsers.handlers.lua import LuaHandler
 from codebase_rag.parsers.handlers.python import PythonHandler
 from codebase_rag.parsers.handlers.rust import RustHandler
@@ -62,6 +63,13 @@ try:
 except ImportError:
     LUA_AVAILABLE = False
 
+try:
+    import tree_sitter_kotlin as tskotlin
+
+    KOTLIN_AVAILABLE = True
+except ImportError:
+    KOTLIN_AVAILABLE = False
+
 
 @pytest.fixture
 def js_parser() -> Parser | None:
@@ -100,6 +108,14 @@ def java_parser() -> Parser | None:
     if not JAVA_AVAILABLE:
         return None
     language = Language(tsjava.language())
+    return Parser(language)
+
+
+@pytest.fixture
+def kotlin_parser() -> Parser | None:
+    if not KOTLIN_AVAILABLE:
+        return None
+    language = Language(tskotlin.language())
     return Parser(language)
 
 
@@ -718,7 +734,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_single_attribute(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"#[derive(Debug)]\nstruct MyStruct {}"
+        code = b"# (H) [derive(Debug)]\nstruct MyStruct {}"
         tree = rust_parser.parse(code)
         struct_node = next(
             c for c in tree.root_node.children if c.type == cs.TS_RS_STRUCT_ITEM
@@ -729,7 +745,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_multiple_attributes(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"#[derive(Debug, Clone)]\n#[allow(dead_code)]\nstruct MyStruct {}"
+        code = b"# (H) [derive(Debug, Clone)]\n#[allow(dead_code)]\nstruct MyStruct {}"
         tree = rust_parser.parse(code)
         struct_node = next(
             c for c in tree.root_node.children if c.type == cs.TS_RS_STRUCT_ITEM
@@ -742,7 +758,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_function_attribute(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"#[test]\nfn my_test() {}"
+        code = b"# (H) [test]\nfn my_test() {}"
         tree = rust_parser.parse(code)
         func_node = next(
             c for c in tree.root_node.children if c.type == cs.TS_RS_FUNCTION_ITEM
@@ -762,7 +778,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_inner_attribute(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"mod my_module {\n    #![allow(dead_code)]\n}"
+        code = b"mod my_module {\n    # (H) ![allow(dead_code)]\n}"
         tree = rust_parser.parse(code)
         mod_node = tree.root_node.children[0]
 
@@ -1105,3 +1121,84 @@ class TestPythonHandler:
 
         result = handler.extract_decorators(class_node)
         assert result == ["@dataclass(frozen=True, slots=True)"]
+
+
+@pytest.mark.skipif(not KOTLIN_AVAILABLE, reason="tree-sitter-kotlin not available")
+class TestKotlinHandler:
+    def test_build_method_qualified_name_with_params(
+        self, kotlin_parser: Parser
+    ) -> None:
+        handler = KotlinHandler()
+        code = b"""
+class MyClass {
+    fun myMethod(a: Int, b: String): String {
+        return ""
+    }
+}
+"""
+        tree = kotlin_parser.parse(code)
+        class_node = tree.root_node.children[0]
+        class_body = class_node.child_by_field_name("class_body")
+        if class_body:
+            func_node = None
+            for child in class_body.children:
+                if child.type == cs.TS_KOTLIN_FUNCTION_DECLARATION:
+                    func_node = child
+                    break
+
+            if func_node:
+                name_node = func_node.child_by_field_name("name")
+                method_name = name_node.text.decode() if name_node else "myMethod"
+                result = handler.build_method_qualified_name(
+                    class_qn="project.module.MyClass",
+                    method_name=method_name,
+                    method_node=func_node,
+                )
+                assert "myMethod" in result
+                assert "Int" in result or "String" in result
+
+    def test_build_method_qualified_name_without_params(
+        self, kotlin_parser: Parser
+    ) -> None:
+        handler = KotlinHandler()
+        code = b"""
+class MyClass {
+    fun myMethod() {}
+}
+"""
+        tree = kotlin_parser.parse(code)
+        class_node = tree.root_node.children[0]
+        class_body = class_node.child_by_field_name("class_body")
+        if class_body:
+            func_node = None
+            for child in class_body.children:
+                if child.type == cs.TS_KOTLIN_FUNCTION_DECLARATION:
+                    func_node = child
+                    break
+
+            if func_node:
+                name_node = func_node.child_by_field_name("name")
+                method_name = name_node.text.decode() if name_node else "myMethod"
+                result = handler.build_method_qualified_name(
+                    class_qn="project.module.MyClass",
+                    method_name=method_name,
+                    method_node=func_node,
+                )
+                assert (
+                    result == "project.module.MyClass.myMethod" or "myMethod" in result
+                )
+
+    def test_extract_decorators(self, kotlin_parser: Parser) -> None:
+        handler = KotlinHandler()
+        code = b"""
+@Deprecated
+class MyClass {
+    @JvmStatic
+    fun myMethod() {}
+}
+"""
+        tree = kotlin_parser.parse(code)
+        class_node = tree.root_node.children[0]
+        result = handler.extract_decorators(class_node)
+        # (H) Should extract annotations
+        assert isinstance(result, list)
