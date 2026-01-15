@@ -66,6 +66,9 @@ def get_class_context_from_qn(
 
 
 def extract_package_name(package_node: ASTNode) -> str | None:
+    if not package_node:  # (H) Safety check
+        return None
+
     if package_node.type != cs.TS_KOTLIN_PACKAGE_HEADER:
         return None
 
@@ -100,6 +103,9 @@ def extract_package_name(package_node: ASTNode) -> str | None:
 
 
 def extract_import_path(import_node: ASTNode) -> dict[str, str]:
+    if not import_node:  # (H) Safety check
+        return {}
+
     # (H) Kotlin uses import_list with import_directive children
     if import_node.type == cs.TS_KOTLIN_IMPORT_LIST:
         # (H) Process all import_directive children
@@ -168,20 +174,39 @@ def extract_import_path(import_node: ASTNode) -> dict[str, str]:
     return imports
 
 
+def _extract_all_delegation_specifiers(class_node: ASTNode) -> list[ASTNode]:
+    """Extract all delegation_specifier nodes from a class or interface declaration."""
+    if not class_node:  # (H) Safety check
+        return []
+    delegation_node = class_node.child_by_field_name("delegation_specifiers")
+    if not delegation_node:
+        return []
+    if not hasattr(delegation_node, "children"):  # (H) Safety check
+        return []
+    return [
+        child
+        for child in delegation_node.children
+        if child and child.type == "delegation_specifier"
+    ]
+
+
 def _extract_superclass(class_node: ASTNode) -> str | None:
     # (H) Kotlin uses delegation_specifiers for classes with superclass
-    # (H) For classes, first delegation_specifier is the superclass
-    delegation_node = class_node.child_by_field_name("delegation_specifiers")
-    if delegation_node:
-        # (H) Get first delegation_specifier (it's the superclass for classes)
-        specifiers = [
-            child
-            for child in delegation_node.children
-            if child.type == "delegation_specifier"
-        ]
-        if specifiers and class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
-            # (H) First one is superclass
-            return _extract_type_from_node(specifiers[0])
+    # (H) Note: In Kotlin, the superclass can appear at any position in the delegation list,
+    # (H) or not at all. We cannot determine from AST alone which delegation_specifier
+    # (H) is a class vs interface without type resolution. As a conservative approach,
+    # (H) we return the first delegation_specifier found, but this may not be correct
+    # (H) if the superclass appears later in the list or if there is no superclass.
+    # (H) This is a limitation - ideally we would resolve each type to check if it's a class.
+    if class_node.type != cs.TS_KOTLIN_CLASS_DECLARATION:
+        return None
+
+    specifiers = _extract_all_delegation_specifiers(class_node)
+    # (H) Since we cannot determine which is class vs interface from AST alone,
+    # (H) we return the first one as a conservative guess. The actual superclass
+    # (H) might be at any position, but without type resolution we cannot be certain.
+    if specifiers:
+        return _extract_type_from_node(specifiers[0])
 
     # (H) Also check supertype field (fallback)
     supertype_node = class_node.child_by_field_name("supertype")
@@ -193,12 +218,20 @@ def _extract_superclass(class_node: ASTNode) -> str | None:
 
 def _extract_type_from_node(node: ASTNode) -> str | None:
     """Extract type name from a type node (user_type, type_identifier, etc.)"""
+    if not node:  # (H) Safety check
+        return None
+
     if node.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
-        return safe_decode_text(node)
+        result = safe_decode_text(node)
+        return result if result else None
     elif node.type == cs.TS_KOTLIN_USER_TYPE:
         # (H) user_type contains type_identifier or nested user_type
         parts = []
+        if not hasattr(node, "children"):  # (H) Safety check
+            return None
         for child in node.children:
+            if not child:  # (H) Safety check
+                continue
             if child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
                 if part := safe_decode_text(child):
                     parts.append(part)
@@ -208,7 +241,11 @@ def _extract_type_from_node(node: ASTNode) -> str | None:
         return cs.SEPARATOR_DOT.join(parts) if parts else None
     elif node.type == "delegation_specifier":
         # (H) Extract type from delegation_specifier
+        if not hasattr(node, "children"):  # (H) Safety check
+            return None
         for child in node.children:
+            if not child:  # (H) Safety check
+                continue
             if result := _extract_type_from_node(child):
                 return result
     return None
@@ -220,23 +257,24 @@ def _extract_interface_name(type_child: ASTNode) -> str | None:
 
 def _extract_interfaces(class_node: ASTNode) -> list[str]:
     # (H) Kotlin uses delegation_specifiers for both superclass and interfaces
-    # (H) Interfaces come after the superclass (if any)
+    # (H) Note: In Kotlin, the superclass can appear at any position in the delegation list.
+    # (H) We cannot determine from AST alone which delegation_specifier is a class vs interface
+    # (H) without type resolution. As a conservative approach:
+    # (H) - For classes: we assume the first might be the superclass (as returned by _extract_superclass),
+    # (H)   so we skip it to avoid duplicating it in the interfaces list
+    # (H) - For interfaces: all delegation_specifiers are parent interfaces
+    # (H) This is a limitation - ideally we would resolve each type to check if it's a class.
     interfaces: list[str] = []
 
-    delegation_node = class_node.child_by_field_name("delegation_specifiers")
-    if delegation_node:
-        # (H) Get all delegation_specifier children
-        specifiers = [
-            child
-            for child in delegation_node.children
-            if child.type == "delegation_specifier"
-        ]
-        # (H) For classes: first is superclass, rest are interfaces
-        # (H) For interfaces: all are parent interfaces
-        start_idx = 1 if class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION else 0
-        for specifier in specifiers[start_idx:]:
-            if interface_name := _extract_type_from_node(specifier):
-                interfaces.append(interface_name)
+    specifiers = _extract_all_delegation_specifiers(class_node)
+    # (H) For classes: we conservatively skip the first one (might be superclass)
+    # (H) For interfaces: all are parent interfaces
+    # (H) Note: This is imperfect - the superclass might not be first, or might not exist.
+    # (H) If the superclass is not first, it will be incorrectly included in interfaces.
+    start_idx = 1 if class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION else 0
+    for specifier in specifiers[start_idx:]:
+        if interface_name := _extract_type_from_node(specifier):
+            interfaces.append(interface_name)
 
     # (H) Also check supertype field (for interface declarations)
     supertype_node = class_node.child_by_field_name("supertype")
@@ -249,12 +287,20 @@ def _extract_interfaces(class_node: ASTNode) -> list[str]:
 
 
 def _extract_type_parameters(class_node: ASTNode) -> list[str]:
+    if not class_node:  # (H) Safety check
+        return []
+
     type_params_node = class_node.child_by_field_name("type_parameters")
     if not type_params_node:
         return []
 
     type_parameters: list[str] = []
+    if not hasattr(type_params_node, "children"):  # (H) Safety check
+        return []
+
     for child in type_params_node.children:
+        if not child:  # (H) Safety check
+            continue
         if child.type == "type_parameter":
             # (H) Kotlin type parameter name is in type_identifier field
             name_node = child.child_by_field_name("name")
@@ -325,6 +371,16 @@ def _extract_class_modifiers(class_node: ASTNode) -> list[str]:
 
 
 def extract_class_info(class_node: ASTNode) -> JavaClassInfo:
+    if not class_node:  # (H) Safety check
+        return JavaClassInfo(
+            name=None,
+            type="",
+            superclass=None,
+            interfaces=[],
+            modifiers=[],
+            type_parameters=[],
+        )
+
     if class_node.type not in cs.SPEC_KOTLIN_CLASS_TYPES:
         return JavaClassInfo(
             name=None,
@@ -414,6 +470,17 @@ def _extract_method_parameters(method_node: ASTNode) -> list[str]:
 
 
 def extract_method_info(method_node: ASTNode) -> JavaMethodInfo:
+    if not method_node:  # (H) Safety check
+        return JavaMethodInfo(
+            name=None,
+            type="",
+            return_type=None,
+            parameters=[],
+            modifiers=[],
+            type_parameters=[],
+            annotations=[],
+        )
+
     if method_node.type not in cs.SPEC_KOTLIN_FUNCTION_TYPES:
         return JavaMethodInfo(
             name=None,
@@ -446,6 +513,14 @@ def extract_method_info(method_node: ASTNode) -> JavaMethodInfo:
 
 
 def extract_field_info(field_node: ASTNode) -> JavaFieldInfo:
+    if not field_node:  # (H) Safety check
+        return JavaFieldInfo(
+            name=None,
+            type=None,
+            modifiers=[],
+            annotations=[],
+        )
+
     if field_node.type != cs.TS_KOTLIN_PROPERTY_DECLARATION:
         return JavaFieldInfo(
             name=None,
@@ -483,6 +558,9 @@ def extract_field_info(field_node: ASTNode) -> JavaFieldInfo:
 
 
 def extract_method_call_info(call_node: ASTNode) -> JavaMethodCallInfo | None:
+    if not call_node:  # (H) Safety check
+        return None
+
     if call_node.type not in [
         cs.TS_KOTLIN_CALL_EXPRESSION,
         cs.TS_KOTLIN_NAVIGATION_EXPRESSION,
