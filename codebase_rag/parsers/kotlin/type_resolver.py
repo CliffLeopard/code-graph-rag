@@ -168,7 +168,10 @@ class KotlinTypeResolverMixin:
                 name_node = node.child_by_field_name("type_identifier")
 
             if name_node and safe_decode_text(name_node) == target_class_name:
-                # (H) Check delegation_specifiers for superclass (first one)
+                # (H) Check delegation_specifiers for superclass
+                # (H) In Kotlin, the superclass can appear at any position in the delegation list.
+                # (H) We iterate through all specifiers and check each one using function_registry
+                # (H) to determine if it's a class (superclass) or interface.
                 delegation_node = node.child_by_field_name("delegation_specifiers")
                 if delegation_node:
                     specifiers = [
@@ -176,20 +179,44 @@ class KotlinTypeResolverMixin:
                         for child in delegation_node.children
                         if child.type == "delegation_specifier"
                     ]
-                    if specifiers:
-                        # (H) First delegation_specifier is the superclass
-                        if superclass_name := self._extract_type_name_from_node(
-                            specifiers[0]
-                        ):
-                            return self._resolve_java_type_name(
-                                superclass_name, module_qn
+                    # (H) Iterate through all specifiers to find the class (superclass)
+                    for specifier in specifiers:
+                        if type_name := self._extract_type_name_from_node(specifier):
+                            if not type_name:  # (H) Safety check
+                                continue
+                            resolved_type = self._resolve_java_type_name(
+                                type_name, module_qn
                             )
-                # (H) Also check supertype field
-                elif supertype_node := node.child_by_field_name("supertype"):
+                            # (H) Check if this resolved type is a class in the function_registry
+                            if (
+                                resolved_type
+                                and resolved_type in self.function_registry
+                            ):
+                                node_type = self.function_registry[resolved_type]
+                                if node_type == NodeType.CLASS:
+                                    return resolved_type
+                            # (H) Also check if it's in the same package
+                            if type_name:  # (H) Ensure type_name is not empty
+                                same_package_qn = (
+                                    f"{module_qn}{cs.SEPARATOR_DOT}{type_name}"
+                                )
+                                if same_package_qn in self.function_registry:
+                                    node_type = self.function_registry[same_package_qn]
+                                    if node_type == NodeType.CLASS:
+                                        return same_package_qn
+
+                # (H) Also check supertype field (fallback, not mutually exclusive with delegation_specifiers)
+                supertype_node = node.child_by_field_name("supertype")
+                if supertype_node:
                     if superclass_name := self._extract_type_name_from_node(
                         supertype_node
                     ):
-                        return self._resolve_java_type_name(superclass_name, module_qn)
+                        if superclass_name:  # (H) Safety check
+                            resolved = self._resolve_java_type_name(
+                                superclass_name, module_qn
+                            )
+                            if resolved:
+                                return resolved
 
         for child in node.children:
             if result := self._find_superclass_using_ast(
@@ -233,7 +260,10 @@ class KotlinTypeResolverMixin:
 
             if name_node and safe_decode_text(name_node) == target_class_name:
                 interface_list: list[str] = []
-                # (H) Check delegation_specifiers (interfaces come after superclass)
+                # (H) Check delegation_specifiers
+                # (H) In Kotlin, the superclass can appear at any position in the delegation list.
+                # (H) We iterate through all specifiers and check each one using function_registry
+                # (H) to determine if it's a class (superclass) or interface.
                 delegation_node = node.child_by_field_name("delegation_specifiers")
                 if delegation_node:
                     specifiers = [
@@ -241,17 +271,52 @@ class KotlinTypeResolverMixin:
                         for child in delegation_node.children
                         if child.type == "delegation_specifier"
                     ]
-                    # (H) Skip first (superclass), rest are interfaces
-                    for specifier in specifiers[1:]:
-                        if interface_name := self._extract_type_name_from_node(
-                            specifier
-                        ):
-                            resolved_interface = self._resolve_java_type_name(
-                                interface_name, module_qn
+                    # (H) For classes: iterate through all specifiers and only include interfaces
+                    # (H) For interfaces: all delegation_specifiers are parent interfaces
+                    for specifier in specifiers:
+                        if type_name := self._extract_type_name_from_node(specifier):
+                            if not type_name:  # (H) Safety check
+                                continue
+                            resolved_type = self._resolve_java_type_name(
+                                type_name, module_qn
                             )
-                            interface_list.append(resolved_interface)
-                # (H) Also check supertype field
-                elif supertype_node := node.child_by_field_name("supertype"):
+                            if not resolved_type:  # (H) Safety check
+                                continue
+
+                            # (H) Check if this resolved type is an interface in the function_registry
+                            is_interface = False
+                            is_class = False
+                            if resolved_type in self.function_registry:
+                                node_type = self.function_registry[resolved_type]
+                                is_interface = node_type == NodeType.INTERFACE
+                                is_class = node_type == NodeType.CLASS
+                            # (H) Also check if it's in the same package
+                            if not is_interface and not is_class:
+                                same_package_qn = (
+                                    f"{module_qn}{cs.SEPARATOR_DOT}{type_name}"
+                                )
+                                if same_package_qn in self.function_registry:
+                                    node_type = self.function_registry[same_package_qn]
+                                    is_interface = node_type == NodeType.INTERFACE
+                                    is_class = node_type == NodeType.CLASS
+                                    if is_interface or is_class:
+                                        resolved_type = same_package_qn
+
+                            # (H) For classes: only add if it's an interface (skip classes/superclass)
+                            # (H) If type is not in registry, conservatively assume it might be an interface
+                            # (H) (since superclass would be found in _find_superclass_using_ast)
+                            # (H) For interfaces: add all (they're all parent interfaces)
+                            if node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
+                                if is_interface or (not is_class and not is_interface):
+                                    # (H) Add if confirmed interface, or if unknown (conservative approach)
+                                    interface_list.append(resolved_type)
+                            else:
+                                # (H) For interface_declaration: add all (they're all parent interfaces)
+                                interface_list.append(resolved_type)
+
+                # (H) Also check supertype field (fallback, not mutually exclusive with delegation_specifiers)
+                supertype_node = node.child_by_field_name("supertype")
+                if supertype_node:
                     self._extract_interface_names(
                         supertype_node, interface_list, module_qn
                     )
@@ -268,12 +333,16 @@ class KotlinTypeResolverMixin:
     def _extract_interface_names(
         self, supertype_node: ASTNode, interface_list: list[str], module_qn: str
     ) -> None:
+        if not supertype_node:  # (H) Safety check
+            return
         for child in supertype_node.children:
             if interface_name := self._extract_type_name_from_node(child):
-                resolved_interface = self._resolve_java_type_name(
-                    interface_name, module_qn
-                )
-                interface_list.append(resolved_interface)
+                if interface_name:  # (H) Safety check
+                    resolved_interface = self._resolve_java_type_name(
+                        interface_name, module_qn
+                    )
+                    if resolved_interface:  # (H) Safety check
+                        interface_list.append(resolved_interface)
 
     def _get_current_class_name(self, module_qn: str) -> str | None:
         root_node = get_root_node_from_module_qn(
