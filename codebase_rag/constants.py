@@ -916,7 +916,7 @@ ALLOWED_COMMENT_MARKERS = frozenset(
 )
 QUOTE_CHARS = frozenset({'"', "'"})
 TRIPLE_QUOTES = ('"""', "'''")
-COMMENT_CHAR = "# (H) "
+COMMENT_CHAR = "#"
 ESCAPE_CHAR = "\\"
 CHAR_SEMICOLON = ";"
 CHAR_COMMA = ","
@@ -2200,15 +2200,15 @@ JS_PROTOTYPE_INHERITANCE_QUERY = """
 (assignment_expression
   left: (member_expression
     object: (identifier) @child_class
-    property: (property_identifier) @prototype (# (H) eq? @prototype "prototype"))
+    property: (property_identifier) @prototype (#eq? @prototype "prototype"))
   right: (call_expression
     function: (member_expression
-      object: (identifier) @object_name (# (H) eq? @object_name "Object")
-      property: (property_identifier) @create_method (# (H) eq? @create_method "create"))
+      object: (identifier) @object_name (#eq? @object_name "Object")
+      property: (property_identifier) @create_method (#eq? @create_method "create"))
     arguments: (arguments
       (member_expression
         object: (identifier) @parent_class
-        property: (property_identifier) @parent_prototype (# (H) eq? @parent_prototype "prototype")))))
+        property: (property_identifier) @parent_prototype (#eq? @parent_prototype "prototype")))))
 """
 
 # (H) JS prototype method assignment query
@@ -2217,7 +2217,7 @@ JS_PROTOTYPE_METHOD_QUERY = """
   left: (member_expression
     object: (member_expression
       object: (identifier) @constructor_name
-      property: (property_identifier) @prototype_keyword (# (H) eq? @prototype_keyword "prototype"))
+      property: (property_identifier) @prototype_keyword (#eq? @prototype_keyword "prototype"))
     property: (property_identifier) @method_name)
   right: (function_expression) @method_function)
 """
@@ -2286,7 +2286,7 @@ JS_COMMONJS_DESTRUCTURE_QUERY = """
   (variable_declarator
     name: (object_pattern)
     value: (call_expression
-      function: (identifier) @func (# (H) eq? @func "require")
+      function: (identifier) @func (#eq? @func "require")
     )
   ) @variable_declarator
 )
@@ -2440,7 +2440,7 @@ MCP_DEFAULT_DIRECTORY = "."
 MCP_JSON_INDENT = 2
 MCP_LOG_LEVEL_INFO = "INFO"
 MCP_LOG_FORMAT = "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>"
-MCP_PAGINATION_HEADER = "# (H) Lines {start}-{end} of {total}\n"
+MCP_PAGINATION_HEADER = "# Lines {start}-{end} of {total}\n"
 
 # (H) MCP response messages
 MCP_INDEX_SUCCESS = "Successfully indexed repository at {path}. Knowledge graph has been updated (previous data cleared)."

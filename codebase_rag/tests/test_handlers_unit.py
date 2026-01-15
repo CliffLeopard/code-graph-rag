@@ -734,7 +734,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_single_attribute(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"# (H) [derive(Debug)]\nstruct MyStruct {}"
+        code = b"#[derive(Debug)]\nstruct MyStruct {}"
         tree = rust_parser.parse(code)
         struct_node = next(
             c for c in tree.root_node.children if c.type == cs.TS_RS_STRUCT_ITEM
@@ -745,7 +745,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_multiple_attributes(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"# (H) [derive(Debug, Clone)]\n#[allow(dead_code)]\nstruct MyStruct {}"
+        code = b"#[derive(Debug, Clone)]\n#[allow(dead_code)]\nstruct MyStruct {}"
         tree = rust_parser.parse(code)
         struct_node = next(
             c for c in tree.root_node.children if c.type == cs.TS_RS_STRUCT_ITEM
@@ -758,7 +758,7 @@ impl MyTrait for MyStruct {
 
     def test_extract_decorators_function_attribute(self, rust_parser: Parser) -> None:
         handler = RustHandler()
-        code = b"# (H) [test]\nfn my_test() {}"
+        code = b"#[test]\nfn my_test() {}"
         tree = rust_parser.parse(code)
         func_node = next(
             c for c in tree.root_node.children if c.type == cs.TS_RS_FUNCTION_ITEM
