@@ -270,13 +270,27 @@ class KotlinMethodResolverMixin:
     def _find_method_return_type_in_ast(
         self, node: ASTNode, class_name: str, method_name: str, module_qn: str
     ) -> str | None:
-        if node.type == cs.TS_CLASS_DECLARATION:
-            if (
-                name_node := node.child_by_field_name(cs.KEY_NAME)
-            ) and safe_decode_text(name_node) == class_name:
-                if body_node := node.child_by_field_name(cs.FIELD_BODY):
+        # (H) Support both Java and Kotlin AST node types
+        if node.type in [
+            cs.TS_CLASS_DECLARATION,
+            cs.TS_KOTLIN_CLASS_DECLARATION,
+            cs.TS_KOTLIN_INTERFACE_DECLARATION,
+        ]:
+            # (H) Check name field (different for Kotlin vs Java)
+            name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
+            if not name_node:
+                name_node = node.child_by_field_name("type_identifier")
+            if not name_node:
+                name_node = node.child_by_field_name(cs.KEY_NAME)
+
+            if name_node and safe_decode_text(name_node) == class_name:
+                # (H) Kotlin uses "body" field, Java uses FIELD_BODY
+                body_node = node.child_by_field_name("body")
+                if not body_node:
+                    body_node = node.child_by_field_name(cs.FIELD_BODY)
+                if body_node:
                     return self._search_methods_in_class_body(
-                        body_node, method_name, module_qn
+                        body_node, method_name, module_qn, node.type
                     )
 
         for child in node.children:
@@ -288,20 +302,57 @@ class KotlinMethodResolverMixin:
         return None
 
     def _search_methods_in_class_body(
-        self, body_node: ASTNode, method_name: str, module_qn: str
+        self, body_node: ASTNode, method_name: str, module_qn: str, class_node_type: str
     ) -> str | None:
+        # (H) Support both Java and Kotlin method declarations
         for child in body_node.children:
-            if child.type == cs.TS_METHOD_DECLARATION:
-                if (
-                    name_node := child.child_by_field_name(cs.KEY_NAME)
-                ) and safe_decode_text(name_node) == method_name:
-                    if (type_node := child.child_by_field_name(cs.KEY_TYPE)) and (
-                        return_type := safe_decode_text(type_node)
-                    ):
-                        return self._resolve_java_type_name(return_type, module_qn)
+            is_kotlin = class_node_type in [
+                cs.TS_KOTLIN_CLASS_DECLARATION,
+                cs.TS_KOTLIN_INTERFACE_DECLARATION,
+            ]
+
+            if child.type == cs.TS_METHOD_DECLARATION or (
+                is_kotlin and child.type == cs.TS_KOTLIN_FUNCTION_DECLARATION
+            ):
+                # (H) Check method name (different field names for Kotlin vs Java)
+                name_node = child.child_by_field_name(cs.TS_FIELD_NAME)
+                if not name_node:
+                    name_node = child.child_by_field_name("simple_identifier")
+                if not name_node:
+                    name_node = child.child_by_field_name(cs.KEY_NAME)
+
+                if name_node and safe_decode_text(name_node) == method_name:
+                    # (H) Extract return type (different field names for Kotlin vs Java)
+                    type_node = child.child_by_field_name(cs.TS_FIELD_TYPE)
+                    if not type_node:
+                        type_node = child.child_by_field_name("return_type")
+                    if not type_node:
+                        type_node = child.child_by_field_name(cs.KEY_TYPE)
+
+                    if type_node:
+                        # (H) For Kotlin, use _extract_type_from_node to handle user_type
+                        if is_kotlin:
+                            from .utils import _extract_type_from_node
+
+                            return_type = _extract_type_from_node(type_node)
+                        else:
+                            return_type = safe_decode_text(type_node)
+
+                        if return_type:
+                            return self._resolve_java_type_name(return_type, module_qn)
         return None
 
     def _heuristic_method_return_type(self, method_call: str) -> str | None:
+        # (H) FUNDAMENTAL LIMITATION: This is a last-resort fallback when all AST-based
+        # (H) type resolution methods have failed. String pattern matching is fragile
+        # (H) and can produce incorrect results in large codebases with varying naming
+        # (H) conventions. This method should only be used when:
+        # (H) 1. Method is not found in function_registry
+        # (H) 2. AST traversal cannot locate the method definition
+        # (H) 3. Type inference from context has failed
+        # (H) Consider this a best-effort guess, not a reliable type resolution.
+        # (H) For better accuracy, ensure methods are properly registered in function_registry
+        # (H) and AST traversal can locate method definitions.
         method_lower = method_call.lower()
         if cs.JAVA_GETTER_PATTERN in method_lower:
             if cs.JAVA_NAME_PATTERN in method_lower:

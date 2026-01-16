@@ -180,30 +180,29 @@ class KotlinTypeResolverMixin:
                         if child.type == "delegation_specifier"
                     ]
                     # (H) Iterate through all specifiers to find the class (superclass)
+                    # (H) Use robust type resolution to distinguish classes from interfaces
                     for specifier in specifiers:
                         if type_name := self._extract_type_name_from_node(specifier):
                             if not type_name:  # (H) Safety check
                                 continue
-                            resolved_type = self._resolve_java_type_name(
+
+                            # (H) Use unified type resolution to determine if it's a class
+                            node_type = self._resolve_type_to_node_type(
                                 type_name, module_qn
                             )
-                            # (H) Check if this resolved type is a class in the function_registry
-                            if (
-                                resolved_type
-                                and resolved_type in self.function_registry
-                            ):
-                                node_type = self.function_registry[resolved_type]
-                                if node_type == NodeType.CLASS:
+                            if node_type == NodeType.CLASS:
+                                # (H) Return resolved type name
+                                resolved_type = self._resolve_java_type_name(
+                                    type_name, module_qn
+                                )
+                                if resolved_type:
                                     return resolved_type
-                            # (H) Also check if it's in the same package
-                            if type_name:  # (H) Ensure type_name is not empty
+                                # (H) Fallback to same package
                                 same_package_qn = (
                                     f"{module_qn}{cs.SEPARATOR_DOT}{type_name}"
                                 )
                                 if same_package_qn in self.function_registry:
-                                    node_type = self.function_registry[same_package_qn]
-                                    if node_type == NodeType.CLASS:
-                                        return same_package_qn
+                                    return same_package_qn
 
                 # (H) Also check supertype field (fallback, not mutually exclusive with delegation_specifiers)
                 supertype_node = node.child_by_field_name("supertype")
@@ -273,43 +272,38 @@ class KotlinTypeResolverMixin:
                     ]
                     # (H) For classes: iterate through all specifiers and only include interfaces
                     # (H) For interfaces: all delegation_specifiers are parent interfaces
+                    # (H) Use robust type resolution to accurately distinguish classes from interfaces
                     for specifier in specifiers:
                         if type_name := self._extract_type_name_from_node(specifier):
                             if not type_name:  # (H) Safety check
                                 continue
+
+                            # (H) Use unified type resolution to determine type
+                            node_type = self._resolve_type_to_node_type(
+                                type_name, module_qn
+                            )
+
+                            # (H) Resolve type name for return value
                             resolved_type = self._resolve_java_type_name(
                                 type_name, module_qn
                             )
-                            if not resolved_type:  # (H) Safety check
-                                continue
-
-                            # (H) Check if this resolved type is an interface in the function_registry
-                            is_interface = False
-                            is_class = False
-                            if resolved_type in self.function_registry:
-                                node_type = self.function_registry[resolved_type]
-                                is_interface = node_type == NodeType.INTERFACE
-                                is_class = node_type == NodeType.CLASS
-                            # (H) Also check if it's in the same package
-                            if not is_interface and not is_class:
+                            if not resolved_type:
+                                # (H) Fallback to same package
                                 same_package_qn = (
                                     f"{module_qn}{cs.SEPARATOR_DOT}{type_name}"
                                 )
                                 if same_package_qn in self.function_registry:
-                                    node_type = self.function_registry[same_package_qn]
-                                    is_interface = node_type == NodeType.INTERFACE
-                                    is_class = node_type == NodeType.CLASS
-                                    if is_interface or is_class:
-                                        resolved_type = same_package_qn
+                                    resolved_type = same_package_qn
+                                else:
+                                    resolved_type = type_name
 
-                            # (H) For classes: only add if it's an interface (skip classes/superclass)
-                            # (H) If type is not in registry, conservatively assume it might be an interface
-                            # (H) (since superclass would be found in _find_superclass_using_ast)
+                            # (H) For classes: only add interfaces (skip classes/superclass)
                             # (H) For interfaces: add all (they're all parent interfaces)
                             if node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
-                                if is_interface or (not is_class and not is_interface):
-                                    # (H) Add if confirmed interface, or if unknown (conservative approach)
+                                if node_type == NodeType.INTERFACE:
                                     interface_list.append(resolved_type)
+                                # (H) If type is unknown, skip it (don't assume it's an interface)
+                                # (H) This avoids false positives and relies on proper type resolution
                             else:
                                 # (H) For interface_declaration: add all (they're all parent interfaces)
                                 interface_list.append(resolved_type)
@@ -376,3 +370,92 @@ class KotlinTypeResolverMixin:
 
         for child in node.children:
             self._traverse_for_class_declarations(child, class_names)
+
+    def _find_type_definition_in_ast(
+        self, root_node: ASTNode, type_name: str, module_qn: str
+    ) -> tuple[ASTNode | None, NodeType | None]:
+        """
+        Find a type definition in AST by name and return the node and its type.
+        This is a fundamental solution to distinguish classes from interfaces.
+        """
+        if not root_node or not type_name:
+            return None, None
+
+        def traverse(node: ASTNode) -> tuple[ASTNode | None, NodeType | None]:
+            if not node:
+                return None, None
+
+            # (H) Check if this is a class or interface declaration
+            if node.type in [
+                cs.TS_KOTLIN_CLASS_DECLARATION,
+                cs.TS_KOTLIN_INTERFACE_DECLARATION,
+                cs.TS_KOTLIN_ENUM_CLASS,
+                cs.TS_KOTLIN_OBJECT_DECLARATION,
+            ]:
+                name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
+                if not name_node:
+                    name_node = node.child_by_field_name("type_identifier")
+
+                if name_node:
+                    node_name = safe_decode_text(name_node)
+                    # (H) Check exact match or qualified match
+                    if node_name == type_name:
+                        # (H) Determine node type based on AST structure
+                        if node.type == cs.TS_KOTLIN_INTERFACE_DECLARATION:
+                            return node, NodeType.INTERFACE
+                        elif node.type == cs.TS_KOTLIN_ENUM_CLASS:
+                            return node, NodeType.ENUM
+                        elif node.type == cs.TS_KOTLIN_OBJECT_DECLARATION:
+                            return node, NodeType.CLASS
+                        elif node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
+                            # (H) Check if it's actually an interface by examining first child
+                            if node.children:
+                                first_child_text = safe_decode_text(node.children[0])
+                                if first_child_text == "interface":
+                                    return node, NodeType.INTERFACE
+                                elif first_child_text == "enum":
+                                    return node, NodeType.ENUM
+                            return node, NodeType.CLASS
+
+            # (H) Recursively search children
+            for child in node.children:
+                result_node, result_type = traverse(child)
+                if result_node:
+                    return result_node, result_type
+
+            return None, None
+
+        return traverse(root_node)
+
+    def _resolve_type_to_node_type(
+        self, type_name: str, module_qn: str
+    ) -> NodeType | None:
+        """
+        Resolve a type name to its NodeType by checking function_registry and AST.
+        This provides a robust way to distinguish classes from interfaces.
+        """
+        if not type_name:
+            return None
+
+        # (H) First check function_registry (fast path)
+        resolved_type = self._resolve_java_type_name(type_name, module_qn)
+        if resolved_type and resolved_type in self.function_registry:
+            return self.function_registry[resolved_type]
+
+        # (H) Also check same package
+        same_package_qn = f"{module_qn}{cs.SEPARATOR_DOT}{type_name}"
+        if same_package_qn in self.function_registry:
+            return self.function_registry[same_package_qn]
+
+        # (H) Fallback: search AST for type definition
+        root_node = get_root_node_from_module_qn(
+            module_qn, self.module_qn_to_file_path, self.ast_cache, min_parts=1
+        )
+        if root_node:
+            _, node_type = self._find_type_definition_in_ast(
+                root_node, type_name, module_qn
+            )
+            if node_type:
+                return node_type
+
+        return None

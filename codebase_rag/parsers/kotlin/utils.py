@@ -192,19 +192,19 @@ def _extract_all_delegation_specifiers(class_node: ASTNode) -> list[ASTNode]:
 
 def _extract_superclass(class_node: ASTNode) -> str | None:
     # (H) Kotlin uses delegation_specifiers for classes with superclass
-    # (H) Note: In Kotlin, the superclass can appear at any position in the delegation list,
-    # (H) or not at all. We cannot determine from AST alone which delegation_specifier
-    # (H) is a class vs interface without type resolution. As a conservative approach,
-    # (H) we return the first delegation_specifier found, but this may not be correct
-    # (H) if the superclass appears later in the list or if there is no superclass.
-    # (H) This is a limitation - ideally we would resolve each type to check if it's a class.
+    # (H) FUNDAMENTAL LIMITATION: This function is called during AST extraction phase,
+    # (H) before the type registry is built. Therefore, we cannot use function_registry
+    # (H) to distinguish classes from interfaces. The proper resolution happens later
+    # (H) in type_resolver.py using _resolve_type_to_node_type() which can access
+    # (H) function_registry and AST traversal.
+    # (H) This function returns the first delegation_specifier as a conservative guess.
+    # (H) The actual superclass detection with proper type resolution is handled by
+    # (H) KotlinTypeResolverMixin._find_superclass_using_ast() which uses function_registry.
     if class_node.type != cs.TS_KOTLIN_CLASS_DECLARATION:
         return None
 
     specifiers = _extract_all_delegation_specifiers(class_node)
-    # (H) Since we cannot determine which is class vs interface from AST alone,
-    # (H) we return the first one as a conservative guess. The actual superclass
-    # (H) might be at any position, but without type resolution we cannot be certain.
+    # (H) Return first specifier as conservative guess (proper resolution in type_resolver)
     if specifiers:
         return _extract_type_from_node(specifiers[0])
 
@@ -257,20 +257,19 @@ def _extract_interface_name(type_child: ASTNode) -> str | None:
 
 def _extract_interfaces(class_node: ASTNode) -> list[str]:
     # (H) Kotlin uses delegation_specifiers for both superclass and interfaces
-    # (H) Note: In Kotlin, the superclass can appear at any position in the delegation list.
-    # (H) We cannot determine from AST alone which delegation_specifier is a class vs interface
-    # (H) without type resolution. As a conservative approach:
-    # (H) - For classes: we assume the first might be the superclass (as returned by _extract_superclass),
-    # (H)   so we skip it to avoid duplicating it in the interfaces list
-    # (H) - For interfaces: all delegation_specifiers are parent interfaces
-    # (H) This is a limitation - ideally we would resolve each type to check if it's a class.
+    # (H) FUNDAMENTAL LIMITATION: This function is called during AST extraction phase,
+    # (H) before the type registry is built. Therefore, we cannot use function_registry
+    # (H) to distinguish classes from interfaces. The proper resolution happens later
+    # (H) in type_resolver.py using _resolve_type_to_node_type() which can access
+    # (H) function_registry and AST traversal.
+    # (H) This function uses a conservative approach: for classes, skip the first
+    # (H) delegation_specifier (might be superclass). The actual interface detection
+    # (H) with proper type resolution is handled by KotlinTypeResolverMixin._find_interfaces_using_ast().
     interfaces: list[str] = []
 
     specifiers = _extract_all_delegation_specifiers(class_node)
-    # (H) For classes: we conservatively skip the first one (might be superclass)
+    # (H) For classes: conservatively skip first (might be superclass, proper resolution in type_resolver)
     # (H) For interfaces: all are parent interfaces
-    # (H) Note: This is imperfect - the superclass might not be first, or might not exist.
-    # (H) If the superclass is not first, it will be incorrectly included in interfaces.
     start_idx = 1 if class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION else 0
     for specifier in specifiers[start_idx:]:
         if interface_name := _extract_type_from_node(specifier):

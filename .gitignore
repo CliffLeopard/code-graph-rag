@@ -22,3 +22,5 @@ PROJECT.md
 .envrc
 .DS_Store
 .pypi_cache.json
+start_java_case.sh
+start_kotlin_case.sh
