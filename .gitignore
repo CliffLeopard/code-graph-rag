@@ -22,5 +22,10 @@ PROJECT.md
 .envrc
 .DS_Store
 .pypi_cache.json
+<<<<<<< HEAD
 .idea
 grammars
+=======
+start_java_case.sh
+start_kotlin_case.sh
+>>>>>>> 6889e4f (fix: kotlin parser)
