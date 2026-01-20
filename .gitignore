@@ -22,3 +22,5 @@ PROJECT.md
 .envrc
 .DS_Store
 .pypi_cache.json
+.idea
+grammars
