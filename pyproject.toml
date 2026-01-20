@@ -63,7 +63,7 @@ semantic = [
 [tool.ruff]
 line-length = 88
 target-version = "py312"
-exclude = ["codec/"]
+exclude = ["codec/", "grammars/"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "PL", "T201"]
@@ -121,5 +121,5 @@ dev = [
 ]
 
 [tool.bandit]
-exclude_dirs = ["codebase_rag/tests", "scripts"]
+exclude_dirs = ["codebase_rag/tests", "scripts", "grammars"]
 skips = ["B101"]

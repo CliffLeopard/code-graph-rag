@@ -3,25 +3,29 @@ repos:
     rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
+        exclude: ^grammars/
     -   id: end-of-file-fixer
+        exclude: ^grammars/
     -   id: check-yaml
+        exclude: ^grammars/
     -   id: check-toml
+        exclude: ^grammars/
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.2
     hooks:
     -   id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-        exclude: ^codec/schema_pb2\.(py|pyi)$
+        exclude: ^(codec/schema_pb2\.(py|pyi)$|grammars/)
     -   id: ruff-format
-        exclude: ^codec/schema_pb2\.(py|pyi)$
+        exclude: ^(codec/schema_pb2\.(py|pyi)$|grammars/)
 -   repo: local
     hooks:
     -   id: ty
         name: ty check
-        entry: uv run ty check --exclude codebase_rag/tests/
+        entry: uv run ty check --exclude codebase_rag/tests/ --exclude grammars/
         language: system
         types: [python]
-        exclude: ^codec/.*_pb2\.py$
+        exclude: ^(codec/.*_pb2\.py$|grammars/)
         pass_filenames: false
 -   repo: local
     hooks:
@@ -30,7 +34,7 @@ repos:
         entry: uv run python scripts/check_no_docs.py
         language: system
         types: [python]
-        exclude: ^codec/schema_pb2\.py$
+        exclude: ^(codec/schema_pb2\.py$|grammars/)
 -   repo: local
     hooks:
     -   id: generate-readme
@@ -45,7 +49,7 @@ repos:
     -   id: bandit
         args: ["-c", "pyproject.toml", "--severity-level", "high"]
         additional_dependencies: ["bandit[toml]"]
-        exclude: ^(codebase_rag/tests/|scripts/)
+        exclude: ^(codebase_rag/tests/|scripts/|grammars/)
 -   repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.2.0
     hooks:

@@ -408,7 +408,32 @@ LANGUAGE_SPECS: dict[cs.SupportedLanguage, LanguageSpec] = {
     ),
 }
 
-_EXTENSION_TO_SPEC: dict[str, LanguageSpec] = {}
+_EXTENSION_TO_SPEC: dict[str, LanguageSpec] = {
+    "kotlin": LanguageSpec(
+        language="kotlin",
+        file_extensions=(".kt", ".kts"),
+        function_node_types=(
+            "lambda_literal",
+            "secondary_constructor",
+            "anonymous_function",
+            "function_declaration",
+            "function_type",
+        ),
+        class_node_types=(
+            "non_nullable_type",
+            "parenthesized_type",
+            "type_alias",
+            "class_declaration",
+            "user_type",
+            "object_literal",
+            "nullable_type",
+            "companion_object",
+            "object_declaration",
+        ),
+        module_node_types=("source_file",),
+        call_node_types=("callable_reference", "call_expression"),
+    ),
+}
 for _config in LANGUAGE_SPECS.values():
     for _ext in _config.file_extensions:
         _EXTENSION_TO_SPEC[_ext] = _config

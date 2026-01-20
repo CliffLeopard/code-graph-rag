@@ -1,0 +1,3 @@
+[submodule "grammars/tree-sitter-kotlin"]
+	path = grammars/tree-sitter-kotlin
+	url = git@github.com:CliffLeopard/tree-sitter-kotlin.git
