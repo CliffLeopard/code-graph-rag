@@ -15,42 +15,51 @@ def determine_node_type(
     class_qn: str,
     language: cs.SupportedLanguage,
 ) -> NodeType:
-    # (H) For Kotlin, check first child to distinguish interface/enum from class
+    # (H) For Kotlin, check children to distinguish interface/enum from class
     # (H) since all use class_declaration node type
     if (
         language == cs.SupportedLanguage.KOTLIN
         and class_node.type == cs.TS_KOTLIN_CLASS_DECLARATION
     ):
-        if class_node.children:
-            # (H) Check first child text (could be "interface", "enum", or "class")
-            first_child_text = safe_decode_with_fallback(class_node.children[0])
-            if first_child_text == "interface":
-                logger.info(
-                    logs.CLASS_FOUND_INTERFACE.format(name=class_name, qn=class_qn)
-                )
-                return NodeType.INTERFACE
-            elif first_child_text == "enum":
-                logger.info(logs.CLASS_FOUND_ENUM.format(name=class_name, qn=class_qn))
-                return NodeType.ENUM
-            # (H) Also check if any child contains "enum" (for enum class declarations)
-            for child in class_node.children:
-                child_text = safe_decode_with_fallback(child)
-                if child_text == "enum":
-                    logger.info(
-                        logs.CLASS_FOUND_ENUM.format(name=class_name, qn=class_qn)
-                    )
-                    return NodeType.ENUM
+        is_interface = False
+        is_enum = False
 
-    match class_node.type:
-        case cs.TS_INTERFACE_DECLARATION | cs.TS_KOTLIN_INTERFACE_DECLARATION:
+        for child in class_node.children:
+            # (H) Check for 'interface' keyword anywhere in children
+            if child.type == "interface":
+                is_interface = True
+                break
+            # (H) Check modifiers for enum class
+            if child.type == "modifiers":
+                for mod_child in child.children:
+                    if mod_child.type == "class_modifier":
+                        mod_text = safe_decode_with_fallback(mod_child)
+                        if mod_text == "enum":
+                            is_enum = True
+                            break
+            # (H) Stop at class body - we've seen all relevant children
+            if child.type == "class_body":
+                break
+
+        if is_interface:
             logger.info(logs.CLASS_FOUND_INTERFACE.format(name=class_name, qn=class_qn))
             return NodeType.INTERFACE
-        case (
-            cs.TS_ENUM_DECLARATION
-            | cs.TS_ENUM_SPECIFIER
-            | cs.TS_ENUM_CLASS_SPECIFIER
-            | cs.TS_KOTLIN_ENUM_CLASS
-        ):
+        if is_enum:
+            logger.info(logs.CLASS_FOUND_ENUM.format(name=class_name, qn=class_qn))
+            return NodeType.ENUM
+        # (H) Default to CLASS for regular Kotlin class declarations
+        logger.info(logs.CLASS_FOUND_CLASS.format(name=class_name, qn=class_qn))
+        return NodeType.CLASS
+
+    match class_node.type:
+        # (H) Note: TS_KOTLIN_INTERFACE_DECLARATION is aliased to class_declaration,
+        # (H) but Kotlin classes are handled above, so this only matches non-Kotlin interfaces
+        case cs.TS_INTERFACE_DECLARATION:
+            logger.info(logs.CLASS_FOUND_INTERFACE.format(name=class_name, qn=class_qn))
+            return NodeType.INTERFACE
+        # (H) Note: Kotlin enum classes are handled above in Kotlin-specific check
+        # (H) because TS_KOTLIN_ENUM_CLASS is aliased to 'class_declaration'
+        case cs.TS_ENUM_DECLARATION | cs.TS_ENUM_SPECIFIER | cs.TS_ENUM_CLASS_SPECIFIER:
             logger.info(logs.CLASS_FOUND_ENUM.format(name=class_name, qn=class_qn))
             return NodeType.ENUM
         case cs.TS_TYPE_ALIAS_DECLARATION | cs.TS_KOTLIN_TYPE_ALIAS:

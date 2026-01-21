@@ -271,21 +271,23 @@ class KotlinMethodResolverMixin:
         self, node: ASTNode, class_name: str, method_name: str, module_qn: str
     ) -> str | None:
         # (H) Support both Java and Kotlin AST node types
+        # (H) In tree-sitter-kotlin, all class-like declarations use class_declaration
         if node.type in [
             cs.TS_CLASS_DECLARATION,
             cs.TS_KOTLIN_CLASS_DECLARATION,
-            cs.TS_KOTLIN_INTERFACE_DECLARATION,
+            cs.TS_KOTLIN_OBJECT_DECLARATION,
         ]:
             # (H) Check name field (different for Kotlin vs Java)
             name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
             if not name_node:
-                name_node = node.child_by_field_name("type_identifier")
-            if not name_node:
                 name_node = node.child_by_field_name(cs.KEY_NAME)
 
             if name_node and safe_decode_text(name_node) == class_name:
-                # (H) Kotlin uses "body" field, Java uses FIELD_BODY
-                body_node = node.child_by_field_name("body")
+                # (H) For Kotlin class_declaration, check class_body
+                # (H) For Java, check body field
+                body_node = node.child_by_field_name("class_body")
+                if not body_node:
+                    body_node = node.child_by_field_name("body")
                 if not body_node:
                     body_node = node.child_by_field_name(cs.FIELD_BODY)
                 if body_node:
@@ -305,19 +307,18 @@ class KotlinMethodResolverMixin:
         self, body_node: ASTNode, method_name: str, module_qn: str, class_node_type: str
     ) -> str | None:
         # (H) Support both Java and Kotlin method declarations
-        for child in body_node.children:
-            is_kotlin = class_node_type in [
-                cs.TS_KOTLIN_CLASS_DECLARATION,
-                cs.TS_KOTLIN_INTERFACE_DECLARATION,
-            ]
+        # (H) In tree-sitter-kotlin, class_declaration is used for all class-like types
+        is_kotlin = class_node_type in [
+            cs.TS_KOTLIN_CLASS_DECLARATION,
+            cs.TS_KOTLIN_OBJECT_DECLARATION,
+        ]
 
+        for child in body_node.children:
             if child.type == cs.TS_METHOD_DECLARATION or (
                 is_kotlin and child.type == cs.TS_KOTLIN_FUNCTION_DECLARATION
             ):
                 # (H) Check method name (different field names for Kotlin vs Java)
                 name_node = child.child_by_field_name(cs.TS_FIELD_NAME)
-                if not name_node:
-                    name_node = child.child_by_field_name("simple_identifier")
                 if not name_node:
                     name_node = child.child_by_field_name(cs.KEY_NAME)
 

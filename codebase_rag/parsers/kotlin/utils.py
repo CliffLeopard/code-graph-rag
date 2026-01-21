@@ -72,27 +72,27 @@ def extract_package_name(package_node: ASTNode) -> str | None:
     if package_node.type != cs.TS_KOTLIN_PACKAGE_HEADER:
         return None
 
-    # (H) Kotlin package header contains a qualified_expression or simple_identifier
+    # (H) Kotlin package header contains qualified_identifier or identifier
     # (H) Look for the identifier path in the package header
     def extract_qualified_parts(node: ASTNode) -> list[str]:
-        """Recursively extract parts from qualified_expression"""
-        parts = []
+        """Recursively extract parts from qualified_identifier or qualified_expression"""
+        parts: list[str] = []
         for child in node.children:
-            if child.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+            if child.type == cs.TS_KOTLIN_IDENTIFIER:
                 if part := safe_decode_text(child):
                     parts.append(part)
-            elif child.type == "qualified_expression":
-                # (H) Recursively extract from nested qualified_expression
+            elif child.type in ["qualified_expression", "qualified_identifier"]:
+                # (H) Recursively extract from nested qualified structure
                 nested_parts = extract_qualified_parts(child)
                 parts.extend(nested_parts)
         return parts
 
     for child in package_node.children:
-        if child.type == "qualified_expression":
+        if child.type in ["qualified_expression", "qualified_identifier"]:
             parts = extract_qualified_parts(child)
             if parts:
                 return cs.SEPARATOR_DOT.join(parts)
-        elif child.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+        elif child.type == cs.TS_KOTLIN_IDENTIFIER:
             if result := safe_decode_text(child):
                 return result
         elif child.type in ["scoped_identifier", "identifier"]:
@@ -106,18 +106,58 @@ def extract_import_path(import_node: ASTNode) -> dict[str, str]:
     if not import_node:  # (H) Safety check
         return {}
 
-    # (H) Kotlin uses import_list with import_directive children
-    if import_node.type == cs.TS_KOTLIN_IMPORT_LIST:
-        # (H) Process all import_directive children
+    # (H) Handle import node (tree-sitter-kotlin uses "import" type)
+    # (H) Structure: import > qualified_identifier | identifier
+    if import_node.type == cs.TS_KOTLIN_IMPORT:
         imports: dict[str, str] = {}
+        imported_path_parts: list[str] = []
+        alias: str | None = None
+        is_wildcard = False
+        seen_as = False
+
         for child in import_node.children:
-            if child.type == cs.TS_KOTLIN_IMPORT_DIRECTIVE:
-                imports.update(extract_import_path(child))
+            if child.type == "qualified_identifier":
+                # (H) qualified_identifier contains multiple identifier children
+                parts = []
+                for id_child in child.children:
+                    if id_child.type == cs.TS_KOTLIN_IDENTIFIER:
+                        if part := safe_decode_text(id_child):
+                            parts.append(part)
+                imported_path_parts = parts
+            elif child.type == cs.TS_KOTLIN_IDENTIFIER:
+                if seen_as and not alias:
+                    alias = safe_decode_text(child)
+                elif not imported_path_parts:
+                    if part := safe_decode_text(child):
+                        imported_path_parts.append(part)
+            elif child.type in ["asterisk", "*"]:
+                is_wildcard = True
+            elif child.type == "as":
+                seen_as = True
+
+        if imported_path_parts:
+            imported_path = cs.SEPARATOR_DOT.join(imported_path_parts)
+            if is_wildcard:
+                wildcard_key = f"*{imported_path}"
+                imports[wildcard_key] = imported_path
+            elif alias:
+                imports[alias] = imported_path
+            else:
+                imported_name = imported_path_parts[-1]
+                imports[imported_name] = imported_path
         return imports
 
-    if import_node.type != cs.TS_KOTLIN_IMPORT_DIRECTIVE:
-        return {}
+    # (H) Backward compatibility: handle old import_list/import_directive patterns
+    # (H) (may occur in older grammar versions or alternative grammars)
+    if import_node.type in ["import_list", "import_directive"]:
+        imports: dict[str, str] = {}
+        if import_node.type == "import_list":
+            for child in import_node.children:
+                if child.type in ["import_directive", cs.TS_KOTLIN_IMPORT]:
+                    imports.update(extract_import_path(child))
+            return imports
 
+    # (H) Legacy handling for import_directive
     imports: dict[str, str] = {}
     imported_path_parts: list[str] = []
     is_wildcard = False
@@ -132,11 +172,14 @@ def extract_import_path(import_node: ASTNode) -> dict[str, str]:
         child = children_list[i]
         if child.type == "qualified_expression":
             # (H) Extract full qualified name
-            parts = []
+            parts: list[str] = []
 
             def extract_qualified(node: ASTNode) -> None:
                 for subchild in node.children:
-                    if subchild.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                    if subchild.type in [
+                        cs.TS_KOTLIN_IDENTIFIER,
+                        cs.TS_KOTLIN_SIMPLE_IDENTIFIER,
+                    ]:
                         if part := safe_decode_text(subchild):
                             parts.append(part)
                     elif subchild.type == "qualified_expression":
@@ -144,7 +187,11 @@ def extract_import_path(import_node: ASTNode) -> dict[str, str]:
 
             extract_qualified(child)
             imported_path_parts = parts
-        elif child.type in [cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "scoped_identifier"]:
+        elif child.type in [
+            cs.TS_KOTLIN_IDENTIFIER,
+            cs.TS_KOTLIN_SIMPLE_IDENTIFIER,
+            "scoped_identifier",
+        ]:
             # (H) Check if this is an alias (comes after "as")
             if seen_as and not alias:
                 alias = safe_decode_text(child)
@@ -397,14 +444,56 @@ def extract_class_info(class_node: ASTNode) -> JavaClassInfo:
     elif name_node := class_node.child_by_field_name("type_identifier"):
         name = safe_decode_text(name_node)
 
+    # (H) Determine class type based on node structure
+    # (H) In tree-sitter-kotlin, all class-like declarations use class_declaration
+    # (H) The distinction is made by checking the first child node type
+    class_type = _determine_class_type(class_node)
+
     return JavaClassInfo(
         name=name,
-        type=class_node.type.replace("_declaration", "").replace("_class", ""),
+        type=class_type,
         superclass=_extract_superclass(class_node),
         interfaces=_extract_interfaces(class_node),
         modifiers=_extract_class_modifiers(class_node),
         type_parameters=_extract_type_parameters(class_node),
     )
+
+
+def _determine_class_type(class_node: ASTNode) -> str:
+    """Determine the actual class type (class, interface, enum, object) based on AST structure."""
+    node_type = class_node.type
+
+    # (H) Handle object_declaration and companion_object directly
+    if node_type == cs.TS_KOTLIN_OBJECT_DECLARATION:
+        return "object"
+    if node_type == cs.TS_KOTLIN_COMPANION_OBJECT:
+        return "object"
+    if node_type == cs.TS_KOTLIN_TYPE_ALIAS:
+        return "typealias"
+
+    # (H) For class_declaration, check children to distinguish class/interface/enum
+    # (H) Note: interface keyword may not be the first child (e.g., after 'public' modifier)
+    if node_type == cs.TS_KOTLIN_CLASS_DECLARATION and class_node.children:
+        for child in class_node.children:
+            # (H) Check for 'interface' keyword anywhere in children
+            if child.type == "interface":
+                return "interface"
+            # (H) Check modifiers for enum/data/sealed class
+            if child.type == "modifiers":
+                for mod_child in child.children:
+                    if mod_child.type == "class_modifier":
+                        mod_text = safe_decode_text(mod_child)
+                        if mod_text == "enum":
+                            return "enum"
+                        # (H) data and sealed are still classes
+            # (H) Stop at class body - we've seen all relevant children
+            if child.type == "class_body":
+                break
+        # (H) Default to class
+        return "class"
+
+    # (H) Fallback: use simple string replacement for backward compatibility
+    return node_type.replace("_declaration", "").replace("_class", "")
 
 
 def _get_method_type(method_node: ASTNode) -> str:
@@ -556,70 +645,127 @@ def extract_field_info(field_node: ASTNode) -> JavaFieldInfo:
     )
 
 
+def _extract_call_name_and_object(node: ASTNode) -> tuple[str | None, str | None]:
+    """Extract method name and object (receiver) from a call expression node."""
+    name: str | None = None
+    obj: str | None = None
+
+    if node.type == cs.TS_KOTLIN_IDENTIFIER:
+        # (H) Simple identifier call like println()
+        name = safe_decode_text(node)
+    elif node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+        # (H) navigation_expression: receiver.method
+        # (H) Try to get field and receiver from fields first (for mock nodes)
+        field_node = node.child_by_field_name("field")
+        receiver_node = node.child_by_field_name("receiver")
+
+        if field_node:
+            name = safe_decode_text(field_node)
+        if receiver_node:
+            if receiver_node.type in {"this", "this_expression"}:
+                obj = "this"
+            elif receiver_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+                # (H) Nested navigation: outer.inner.method -> extract inner as object
+                _, nested_obj = _extract_call_name_and_object(receiver_node)
+                if nested_obj:
+                    obj = nested_obj
+                else:
+                    obj = safe_decode_text(receiver_node)
+            else:
+                obj = safe_decode_text(receiver_node)
+
+        # (H) Fallback: traverse children for real tree-sitter nodes
+        if not name or not obj:
+            for child in node.children:
+                if child.type == "navigation_suffix":
+                    for suffix_child in child.children:
+                        if suffix_child.type == cs.TS_KOTLIN_IDENTIFIER:
+                            name = safe_decode_text(suffix_child)
+                elif child.type == cs.TS_KOTLIN_IDENTIFIER:
+                    if obj is None:
+                        obj = safe_decode_text(child)
+                elif child.type in {"this_expression", "this"}:
+                    obj = "this"
+    elif node.type in {"this", "this_expression"}:
+        obj = "this"
+    else:
+        # (H) Fallback: try to get text
+        name = safe_decode_text(node)
+
+    return name, obj
+
+
 def extract_method_call_info(call_node: ASTNode) -> JavaMethodCallInfo | None:
     if not call_node:  # (H) Safety check
         return None
 
+    # (H) Support both call_expression, navigation_expression, and constructor_invocation
     if call_node.type not in [
         cs.TS_KOTLIN_CALL_EXPRESSION,
         cs.TS_KOTLIN_NAVIGATION_EXPRESSION,
+        cs.TS_KOTLIN_CONSTRUCTOR_INVOCATION,
     ]:
         return None
 
     name: str | None = None
     obj: str | None = None
 
+    # (H) Handle constructor_invocation (new instances)
+    if call_node.type == cs.TS_KOTLIN_CONSTRUCTOR_INVOCATION:
+        # (H) constructor_invocation contains type and value_arguments
+        for child in call_node.children:
+            if child.type == cs.TS_KOTLIN_USER_TYPE:
+                name = _extract_type_from_node(child)
+                break
+            elif child.type == cs.TS_KOTLIN_IDENTIFIER:
+                name = safe_decode_text(child)
+                break
     # (H) Kotlin call expressions structure:
-    # (H) call_expression > value (navigation_expression or simple_identifier) > arguments
-    if call_node.type == cs.TS_KOTLIN_CALL_EXPRESSION:
-        value_node = call_node.child_by_field_name("value")
-        if value_node:
-            if value_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
-                name = safe_decode_text(value_node)
-            elif value_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
-                # (H) navigation_expression.field is the method name
-                if field_node := value_node.child_by_field_name("field"):
-                    if field_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
-                        name = safe_decode_text(field_node)
-                # (H) navigation_expression.receiver is the object
-                if receiver_node := value_node.child_by_field_name("receiver"):
-                    if receiver_node.type == "this":
-                        obj = "this"
-                    elif receiver_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
-                        obj = safe_decode_text(receiver_node)
-                    elif receiver_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
-                        # (H) Recursively extract from nested navigation
-                        if nested_field := receiver_node.child_by_field_name("field"):
-                            if nested_field.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
-                                obj = safe_decode_text(nested_field)
+    # (H) call_expression > expression (navigation_expression or identifier) > value_arguments
+    elif call_node.type == cs.TS_KOTLIN_CALL_EXPRESSION:
+        # (H) Try to get callee from field first (for mock nodes)
+        callee_node = call_node.child_by_field_name("value")
+        if not callee_node:
+            callee_node = call_node.child_by_field_name("expression")
+
+        if callee_node:
+            name, obj = _extract_call_name_and_object(callee_node)
+        else:
+            # (H) Fallback: First child is usually the expression being called
+            for child in call_node.children:
+                if child.type == cs.TS_KOTLIN_IDENTIFIER:
+                    name = safe_decode_text(child)
+                    break
+                elif child.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+                    name, obj = _extract_call_name_and_object(child)
+                    break
     elif call_node.type == cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
         # (H) Direct navigation expression (property access, not call)
-        if field_node := call_node.child_by_field_name("field"):
-            if field_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
-                name = safe_decode_text(field_node)
-        if receiver_node := call_node.child_by_field_name("receiver"):
-            if receiver_node.type == "this":
-                obj = "this"
-            elif receiver_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
-                obj = safe_decode_text(receiver_node)
+        name, obj = _extract_call_name_and_object(call_node)
 
     arguments = 0
-    # (H) Kotlin call expressions have value_arguments or arguments field
+    # (H) Kotlin call expressions have value_arguments field
     args_node = call_node.child_by_field_name(cs.TS_FIELD_ARGUMENTS)
     if not args_node:
         args_node = call_node.child_by_field_name("value_arguments")
+    # (H) Also check for direct value_arguments child
+    if not args_node:
+        for child in call_node.children:
+            if child.type == "value_arguments":
+                args_node = child
+                break
 
     if args_node:
-        # (H) Count actual argument expressions, skip delimiters
+        # (H) Count value_argument nodes (Kotlin specific)
         arguments = sum(
-            1
-            for child in args_node.children
-            if child.type not in cs.DELIMITER_TOKENS and child.type != "value_argument"
+            1 for child in args_node.children if child.type == "value_argument"
         )
-        # (H) Also count value_argument nodes (Kotlin specific)
+        # (H) Fallback: count non-delimiter children
         if not arguments:
             arguments = sum(
-                1 for child in args_node.children if child.type == "value_argument"
+                1
+                for child in args_node.children
+                if child.type not in cs.DELIMITER_TOKENS
             )
 
     return JavaMethodCallInfo(name=name, object=obj, arguments=arguments)

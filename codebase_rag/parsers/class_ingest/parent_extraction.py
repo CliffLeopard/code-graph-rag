@@ -52,6 +52,13 @@ def extract_parent_classes(
             )
         )
 
+    # (H) Extract Kotlin inheritance from delegation_specifiers
+    parent_classes.extend(
+        extract_kotlin_parent_classes(
+            class_node, module_qn, import_processor, resolve_to_qn
+        )
+    )
+
     return parent_classes
 
 
@@ -325,3 +332,92 @@ def extract_java_interface_names(
                 if type_child.type == cs.TS_TYPE_IDENTIFIER and type_child.text:
                     if interface_name := safe_decode_text(type_child):
                         interface_list.append(resolve_to_qn(interface_name, module_qn))
+
+
+def extract_kotlin_parent_classes(
+    class_node: Node,
+    module_qn: str,
+    import_processor: ImportProcessor,
+    resolve_to_qn: Callable[[str, str], str],
+) -> list[str]:
+    """Extract parent classes from Kotlin delegation_specifiers.
+
+    Kotlin uses delegation_specifiers to indicate both class inheritance and
+    interface implementation. The structure is:
+    - class_declaration
+      - delegation_specifiers
+        - delegation_specifier
+          - constructor_invocation (for class inheritance with constructor call)
+            - user_type (parent class name)
+          - user_type (for interface implementation or class without constructor)
+    """
+    parent_classes: list[str] = []
+
+    # (H) Find delegation_specifiers child node
+    delegation_specifiers = find_child_by_type(class_node, "delegation_specifiers")
+    if not delegation_specifiers:
+        return parent_classes
+
+    import_map = import_processor.import_mapping.get(module_qn, {})
+
+    for child in delegation_specifiers.children:
+        if child.type != "delegation_specifier":
+            continue
+
+        parent_name = _extract_kotlin_parent_name(child)
+        if not parent_name:
+            continue
+
+        # (H) Resolve the parent name to a qualified name
+        if parent_name in import_map:
+            parent_qn = import_map[parent_name]
+        else:
+            parent_qn = resolve_to_qn(parent_name, module_qn)
+
+        parent_classes.append(parent_qn)
+        logger.debug(
+            f"Kotlin inheritance: extracted parent '{parent_name}' -> '{parent_qn}'"
+        )
+
+    return parent_classes
+
+
+def _extract_kotlin_parent_name(delegation_specifier: Node) -> str | None:
+    """Extract the parent type name from a delegation_specifier node."""
+    for child in delegation_specifier.children:
+        # (H) Case 1: constructor_invocation (e.g., Protocol(options))
+        if child.type == "constructor_invocation":
+            user_type = find_child_by_type(child, "user_type")
+            if user_type:
+                return _get_kotlin_type_name(user_type)
+
+        # (H) Case 2: direct user_type (e.g., Transport, Logger)
+        if child.type == "user_type":
+            return _get_kotlin_type_name(child)
+
+    return None
+
+
+def _get_kotlin_type_name(user_type_node: Node) -> str | None:
+    """Get the simple name from a user_type node.
+
+    user_type can contain:
+    - identifier (simple type like "Protocol")
+    - type_identifier (simple type)
+    - qualified identifiers with dots
+    """
+    # (H) First try to get the full text for qualified types
+    if user_type_node.text:
+        full_text = safe_decode_text(user_type_node)
+        if full_text:
+            # (H) Remove generic parameters if present (e.g., List<String> -> List)
+            if "<" in full_text:
+                full_text = full_text.split("<")[0]
+            return full_text.strip()
+
+    # (H) Fallback: look for identifier child
+    for child in user_type_node.children:
+        if child.type in ("identifier", "type_identifier") and child.text:
+            return safe_decode_text(child)
+
+    return None

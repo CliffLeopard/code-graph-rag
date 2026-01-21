@@ -60,16 +60,12 @@ def _generic_get_name(node: "Node") -> str | None:
         if name_node and name_node.text:
             return name_node.text.decode(cs.ENCODING_UTF8)
 
-    # (H) Kotlin uses type_identifier for class names
+    # (H) Kotlin class/object names use "name" field with identifier type
+    # (H) For nodes that may have the name as a direct identifier child
     if node.type in cs.SPEC_KOTLIN_CLASS_TYPES:
-        type_identifier_node = node.child_by_field_name("type_identifier")
-        if type_identifier_node and type_identifier_node.text:
-            return type_identifier_node.text.decode(cs.ENCODING_UTF8)
-
-        # (H) For generic classes, the type_identifier might be a direct child
-        # (H) Check all children for type_identifier nodes (but skip type_parameters)
+        # (H) Check for direct identifier child (skip type_parameters)
         for child in node.children:
-            if child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER and child.text:
+            if child.type == cs.TS_KOTLIN_IDENTIFIER and child.text:
                 # (H) Make sure it's not inside type_parameters
                 parent = child.parent
                 while parent and parent != node:
@@ -79,6 +75,12 @@ def _generic_get_name(node: "Node") -> str | None:
                 else:
                     # (H) Not inside type_parameters, this is the class name
                     return child.text.decode(cs.ENCODING_UTF8)
+
+    # (H) For type_alias, the name might be in "type" field
+    if node.type == cs.TS_KOTLIN_TYPE_ALIAS:
+        type_node = node.child_by_field_name("type")
+        if type_node and type_node.text:
+            return type_node.text.decode(cs.ENCODING_UTF8)
 
     return None
 
@@ -379,14 +381,26 @@ LANGUAGE_SPECS: dict[cs.SupportedLanguage, LanguageSpec] = {
         import_node_types=cs.SPEC_KOTLIN_IMPORT_TYPES,
         import_from_node_types=cs.SPEC_KOTLIN_IMPORT_TYPES,
         function_query="""
-        (function_declaration) @function
+        (function_declaration
+            name: (identifier) @name) @function
+        (secondary_constructor) @function
+        (anonymous_function) @function
+        (lambda_literal) @function
         """,
         class_query="""
-        (class_declaration) @class
-        (object_declaration) @class
+        (class_declaration
+            name: (identifier) @name) @class
+        (object_declaration
+            name: (identifier) @name) @class
+        (companion_object
+            name: (identifier) @name) @class
+        (companion_object) @class
+        (type_alias
+            (identifier) @name) @class
         """,
         call_query="""
         (call_expression) @call
+        (constructor_invocation) @call
         """,
     ),
     cs.SupportedLanguage.CPP: LanguageSpec(

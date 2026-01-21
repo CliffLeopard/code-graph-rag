@@ -248,17 +248,24 @@ class KotlinTypeResolverMixin:
     def _find_interfaces_using_ast(
         self, node: ASTNode, target_class_name: str, module_qn: str
     ) -> list[str]:
-        if node.type in [
-            cs.TS_KOTLIN_CLASS_DECLARATION,
-            cs.TS_KOTLIN_INTERFACE_DECLARATION,
-        ]:
+        # (H) In tree-sitter-kotlin, both classes and interfaces use class_declaration
+        if node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
             # (H) Check name field
             name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
-            if not name_node:
-                name_node = node.child_by_field_name("type_identifier")
 
             if name_node and safe_decode_text(name_node) == target_class_name:
                 interface_list: list[str] = []
+
+                # (H) Determine if this is an interface or class by checking children
+                # (H) Note: interface keyword may not be the first child (e.g., after modifiers)
+                is_interface = False
+                for child in node.children:
+                    if child.type == "interface":
+                        is_interface = True
+                        break
+                    if child.type == "class_body":
+                        break
+
                 # (H) Check delegation_specifiers
                 # (H) In Kotlin, the superclass can appear at any position in the delegation list.
                 # (H) We iterate through all specifiers and check each one using function_registry
@@ -279,7 +286,7 @@ class KotlinTypeResolverMixin:
                                 continue
 
                             # (H) Use unified type resolution to determine type
-                            node_type = self._resolve_type_to_node_type(
+                            specifier_node_type = self._resolve_type_to_node_type(
                                 type_name, module_qn
                             )
 
@@ -299,14 +306,14 @@ class KotlinTypeResolverMixin:
 
                             # (H) For classes: only add interfaces (skip classes/superclass)
                             # (H) For interfaces: add all (they're all parent interfaces)
-                            if node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
-                                if node_type == NodeType.INTERFACE:
-                                    interface_list.append(resolved_type)
-                                # (H) If type is unknown, skip it (don't assume it's an interface)
-                                # (H) This avoids false positives and relies on proper type resolution
-                            else:
-                                # (H) For interface_declaration: add all (they're all parent interfaces)
+                            if is_interface:
+                                # (H) For interface: add all (they're all parent interfaces)
                                 interface_list.append(resolved_type)
+                            elif specifier_node_type == NodeType.INTERFACE:
+                                # (H) For class: only add if it's an interface
+                                interface_list.append(resolved_type)
+                            # (H) If type is unknown, skip it (don't assume it's an interface)
+                            # (H) This avoids false positives and relies on proper type resolution
 
                 # (H) Also check supertype field (fallback, not mutually exclusive with delegation_specifiers)
                 supertype_node = node.child_by_field_name("supertype")
@@ -353,20 +360,15 @@ class KotlinTypeResolverMixin:
     def _traverse_for_class_declarations(
         self, node: ASTNode, class_names: list[str]
     ) -> None:
-        match node.type:
-            case (
-                cs.TS_KOTLIN_CLASS_DECLARATION
-                | cs.TS_KOTLIN_INTERFACE_DECLARATION
-                | cs.TS_KOTLIN_ENUM_CLASS
-                | cs.TS_KOTLIN_OBJECT_DECLARATION
-            ):
-                name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
-                if not name_node:
-                    name_node = node.child_by_field_name("type_identifier")
-                if name_node and (class_name := safe_decode_text(name_node)):
-                    class_names.append(class_name)
-            case _:
-                pass
+        # (H) In tree-sitter-kotlin, all class-like declarations use class_declaration
+        # (H) or object_declaration node types
+        if node.type in [
+            cs.TS_KOTLIN_CLASS_DECLARATION,
+            cs.TS_KOTLIN_OBJECT_DECLARATION,
+        ]:
+            name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
+            if name_node and (class_name := safe_decode_text(name_node)):
+                class_names.append(class_name)
 
         for child in node.children:
             self._traverse_for_class_declarations(child, class_names)
@@ -385,37 +387,47 @@ class KotlinTypeResolverMixin:
             if not node:
                 return None, None
 
-            # (H) Check if this is a class or interface declaration
+            # (H) Check if this is a class or object declaration
+            # (H) Note: In Kotlin tree-sitter, all class-like declarations use class_declaration
+            # (H) The distinction is made by checking the first child node type
             if node.type in [
                 cs.TS_KOTLIN_CLASS_DECLARATION,
-                cs.TS_KOTLIN_INTERFACE_DECLARATION,
-                cs.TS_KOTLIN_ENUM_CLASS,
                 cs.TS_KOTLIN_OBJECT_DECLARATION,
             ]:
                 name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
-                if not name_node:
-                    name_node = node.child_by_field_name("type_identifier")
-
                 if name_node:
                     node_name = safe_decode_text(name_node)
                     # (H) Check exact match or qualified match
                     if node_name == type_name:
                         # (H) Determine node type based on AST structure
-                        if node.type == cs.TS_KOTLIN_INTERFACE_DECLARATION:
+                        if node.type == cs.TS_KOTLIN_OBJECT_DECLARATION:
+                            return node, NodeType.CLASS
+
+                        # (H) For class_declaration, check children to distinguish type
+                        # (H) tree-sitter-kotlin uses: 'interface' keyword for interfaces,
+                        # (H) 'class' keyword for classes, and 'modifiers' node for enum/data/sealed
+                        # (H) Note: interface keyword may not be the first child (e.g., after modifiers)
+                        is_interface = False
+                        is_enum = False
+                        for child in node.children:
+                            if child.type == "interface":
+                                is_interface = True
+                                break
+                            if child.type == "modifiers":
+                                for mod_child in child.children:
+                                    if mod_child.type == "class_modifier":
+                                        mod_text = safe_decode_text(mod_child)
+                                        if mod_text == "enum":
+                                            is_enum = True
+                                            break
+                            if child.type == "class_body":
+                                break
+                        if is_interface:
                             return node, NodeType.INTERFACE
-                        elif node.type == cs.TS_KOTLIN_ENUM_CLASS:
+                        if is_enum:
                             return node, NodeType.ENUM
-                        elif node.type == cs.TS_KOTLIN_OBJECT_DECLARATION:
-                            return node, NodeType.CLASS
-                        elif node.type == cs.TS_KOTLIN_CLASS_DECLARATION:
-                            # (H) Check if it's actually an interface by examining first child
-                            if node.children:
-                                first_child_text = safe_decode_text(node.children[0])
-                                if first_child_text == "interface":
-                                    return node, NodeType.INTERFACE
-                                elif first_child_text == "enum":
-                                    return node, NodeType.ENUM
-                            return node, NodeType.CLASS
+                        # (H) Default to CLASS for regular class declarations
+                        return node, NodeType.CLASS
 
             # (H) Recursively search children
             for child in node.children:

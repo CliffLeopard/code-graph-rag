@@ -73,66 +73,68 @@ class TestExtractKotlinPackageName:
 
 class TestExtractKotlinImportPath:
     def test_regular_import(self) -> None:
-        list_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "List")
-        util_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "util")
-        java_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "java")
-        # (H) Create qualified_expression: java.util.List
-        util_list_qual = create_mock_node(
-            "qualified_expression", children=[util_id, list_id]
+        # (H) In tree-sitter-kotlin, import uses qualified_identifier
+        # (H) Structure: import > "import" keyword > qualified_identifier > identifiers
+        java_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "java")
+        util_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "util")
+        list_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "List")
+        qualified_id = create_mock_node(
+            "qualified_identifier", children=[java_id, util_id, list_id]
         )
-        qual_expr = create_mock_node(
-            "qualified_expression", children=[java_id, util_list_qual]
-        )
+        import_keyword = create_mock_node("import", "import")
         import_node = create_mock_node(
-            cs.TS_KOTLIN_IMPORT_DIRECTIVE, children=[qual_expr]
+            cs.TS_KOTLIN_IMPORT, children=[import_keyword, qualified_id]
         )
         result = extract_import_path(import_node)
         assert "List" in result
         assert result["List"] == "java.util.List"
 
     def test_wildcard_import(self) -> None:
-        util_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "util")
-        java_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "java")
-        qual_expr = create_mock_node(
-            "qualified_expression", children=[java_id, util_id]
+        # (H) Wildcard import: import java.util.*
+        java_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "java")
+        util_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "util")
+        qualified_id = create_mock_node(
+            "qualified_identifier", children=[java_id, util_id]
         )
-        asterisk = create_mock_node("asterisk", "*")
+        import_keyword = create_mock_node("import", "import")
+        dot = create_mock_node(".", ".")
+        asterisk = create_mock_node("*", "*")
         import_node = create_mock_node(
-            cs.TS_KOTLIN_IMPORT_DIRECTIVE, children=[qual_expr, asterisk]
+            cs.TS_KOTLIN_IMPORT, children=[import_keyword, qualified_id, dot, asterisk]
         )
         result = extract_import_path(import_node)
         assert "*java.util" in result
         assert result["*java.util"] == "java.util"
 
     def test_import_with_alias(self) -> None:
-        arraylist_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "ArrayList")
-        util_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "util")
-        java_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "java")
-        util_al_qual = create_mock_node(
-            "qualified_expression", children=[util_id, arraylist_id]
+        # (H) Import with alias: import java.util.ArrayList as AL
+        java_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "java")
+        util_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "util")
+        arraylist_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "ArrayList")
+        qualified_id = create_mock_node(
+            "qualified_identifier", children=[java_id, util_id, arraylist_id]
         )
-        qual_expr = create_mock_node(
-            "qualified_expression", children=[java_id, util_al_qual]
-        )
+        import_keyword = create_mock_node("import", "import")
         as_keyword = create_mock_node("as", "as")
-        alias = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "AL")
+        alias = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "AL")
         import_node = create_mock_node(
-            cs.TS_KOTLIN_IMPORT_DIRECTIVE, children=[qual_expr, as_keyword, alias]
+            cs.TS_KOTLIN_IMPORT,
+            children=[import_keyword, qualified_id, as_keyword, alias],
         )
         result = extract_import_path(import_node)
         assert "AL" in result
         assert result["AL"] == "java.util.ArrayList"
 
-    def test_import_list(self) -> None:
-        list_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "List")
-        map_id = create_mock_node(cs.TS_KOTLIN_SIMPLE_IDENTIFIER, "Map")
-        import1 = create_mock_node(cs.TS_KOTLIN_IMPORT_DIRECTIVE, children=[list_id])
-        import2 = create_mock_node(cs.TS_KOTLIN_IMPORT_DIRECTIVE, children=[map_id])
-        import_list = create_mock_node(
-            cs.TS_KOTLIN_IMPORT_LIST, children=[import1, import2]
+    def test_import_simple_identifier(self) -> None:
+        # (H) Simple single identifier import
+        list_id = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "List")
+        import_keyword = create_mock_node("import", "import")
+        import_node = create_mock_node(
+            cs.TS_KOTLIN_IMPORT, children=[import_keyword, list_id]
         )
-        result = extract_import_path(import_list)
-        assert len(result) >= 1  # (H) At least one import should be extracted
+        result = extract_import_path(import_node)
+        assert "List" in result
+        assert result["List"] == "List"
 
     def test_invalid_node_type(self) -> None:
         node = create_mock_node("class_declaration")
@@ -206,20 +208,28 @@ class TestExtractKotlinClassInfo:
         assert result["superclass"] == "Parent"
 
     def test_interface_declaration(self) -> None:
-        name_node = create_mock_node("type_identifier", "MyInterface")
+        name_node = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "MyInterface")
+        # (H) In tree-sitter-kotlin, interface uses class_declaration with 'interface' keyword as first child
+        interface_keyword = create_mock_node("interface", "interface")
         interface_node = create_mock_node(
-            cs.TS_KOTLIN_INTERFACE_DECLARATION,
+            cs.TS_KOTLIN_CLASS_DECLARATION,
             fields={"name": name_node},
+            children=[interface_keyword, name_node],
         )
         result = extract_class_info(interface_node)
         assert result["name"] == "MyInterface"
         assert result["type"] == "interface"
 
     def test_enum_class(self) -> None:
-        name_node = create_mock_node("type_identifier", "Color")
+        name_node = create_mock_node(cs.TS_KOTLIN_IDENTIFIER, "Color")
+        # (H) In tree-sitter-kotlin, enum class uses class_declaration with modifiers containing enum
+        enum_modifier = create_mock_node("class_modifier", "enum")
+        modifiers = create_mock_node("modifiers", children=[enum_modifier])
+        class_keyword = create_mock_node("class", "class")
         enum_node = create_mock_node(
-            cs.TS_KOTLIN_ENUM_CLASS,
+            cs.TS_KOTLIN_CLASS_DECLARATION,
             fields={"name": name_node},
+            children=[modifiers, class_keyword, name_node],
         )
         result = extract_class_info(enum_node)
         assert result["name"] == "Color"

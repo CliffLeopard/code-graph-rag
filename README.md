@@ -43,7 +43,7 @@ An accurate Retrieval-Augmented Generation (RAG) system that analyzes multi-lang
 | C++ | Fully Supported | .cpp, .h, .hpp, .cc, .cxx, .hxx, .hh, .ixx, .cppm, .ccm | ✓ | ✓ | ✓ | ✓ | Constructors, destructors, operator overloading, templates, lambdas, C++20 modules, namespaces |
 | Java | Fully Supported | .java | ✓ | ✓ | ✓ | - | Generics, annotations, modern features (records/sealed classes), concurrency, reflection |
 | JavaScript | Fully Supported | .js, .jsx | ✓ | ✓ | ✓ | - | ES6 modules, CommonJS, prototype methods, object methods, arrow functions |
-| Kotlin | Fully Supported | .kt | ✓ | ✓ | ✓ | - | Data classes, sealed classes, coroutines, extension functions, null safety, type inference |
+| Kotlin | Fully Supported | .kt, .kts | ✓ | ✓ | ✓ | - | Data classes, sealed classes, coroutines, extension functions, null safety, type inference |
 | Lua | Fully Supported | .lua | ✓ | - | ✓ | - | Local/global functions, metatables, closures, coroutines |
 | Python | Fully Supported | .py | ✓ | ✓ | ✓ | ✓ | Type inference, decorators, nested functions |
 | Rust | Fully Supported | .rs | ✓ | ✓ | ✓ | ✓ | impl blocks, associated functions |
@@ -578,7 +578,7 @@ The knowledge graph uses the following node types and relationships:
 - **C++**: `class_specifier`, `declaration`, `enum_specifier`, `field_declaration`, `function_definition`, `lambda_expression`, `struct_specifier`, `template_declaration`, `union_specifier`
 - **Java**: `annotation_type_declaration`, `class_declaration`, `constructor_declaration`, `enum_declaration`, `interface_declaration`, `method_declaration`, `record_declaration`
 - **JavaScript**: `arrow_function`, `class`, `class_declaration`, `function_declaration`, `function_expression`, `generator_function_declaration`, `method_definition`
-- **Kotlin**: `class_declaration`, `constructor_declaration`, `enum_class`, `function_declaration`, `interface_declaration`, `object_declaration`
+- **Kotlin**: `anonymous_function`, `class_declaration`, `companion_object`, `function_declaration`, `lambda_literal`, `object_declaration`, `secondary_constructor`, `type_alias`
 - **Lua**: `function_declaration`, `function_definition`
 - **Python**: `class_definition`, `function_definition`
 - **Rust**: `closure_expression`, `enum_item`, `function_item`, `function_signature_item`, `impl_item`, `struct_item`, `trait_item`, `type_item`, `union_item`

@@ -50,7 +50,7 @@ treesitter-full = [
     "tree-sitter-go>=0.23.4",
     "tree-sitter-scala>=0.24.0",
     "tree-sitter-java>=0.23.5",
-    "tree-sitter-kotlin>=1.1.0",
+    "tree-sitter-kotlin",
     "tree-sitter-cpp>=0.23.0",
     "tree-sitter-lua>=0.0.19",
 ]
@@ -60,6 +60,9 @@ semantic = [
     "torch>=2.6.0",
     "transformers>=4.0.0",
 ]
+
+[tool.uv.sources]
+tree-sitter-kotlin = { path = "grammars/tree-sitter-kotlin", editable = true }
 
 [tool.ruff]
 line-length = 88

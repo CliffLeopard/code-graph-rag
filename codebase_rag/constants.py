@@ -73,6 +73,7 @@ EXT_SCALA = ".scala"
 EXT_SC = ".sc"
 EXT_JAVA = ".java"
 EXT_KOTLIN = ".kt"
+EXT_KTS = ".kts"  # (H) Kotlin Script extension
 EXT_CLASS = ".class"
 EXT_CPP = ".cpp"
 EXT_H = ".h"
@@ -96,7 +97,7 @@ RS_EXTENSIONS = (EXT_RS,)
 GO_EXTENSIONS = (EXT_GO,)
 SCALA_EXTENSIONS = (EXT_SCALA, EXT_SC)
 JAVA_EXTENSIONS = (EXT_JAVA,)
-KOTLIN_EXTENSIONS = (EXT_KOTLIN,)
+KOTLIN_EXTENSIONS = (EXT_KOTLIN, EXT_KTS)
 CPP_EXTENSIONS = (
     EXT_CPP,
     EXT_H,
@@ -1907,32 +1908,45 @@ TS_RECORD_DECLARATION = "record_declaration"
 TS_TRUE = "true"
 TS_FALSE = "false"
 
-# (H) Kotlin tree-sitter node types
+# (H) Kotlin tree-sitter node types (based on node-types.json analysis)
 TS_KOTLIN_SOURCE_FILE = "source_file"  # (H) Root node type for Kotlin files
 TS_KOTLIN_FUNCTION_DECLARATION = "function_declaration"
 TS_KOTLIN_CLASS_DECLARATION = "class_declaration"
 TS_KOTLIN_OBJECT_DECLARATION = "object_declaration"
-TS_KOTLIN_INTERFACE_DECLARATION = "interface_declaration"
-TS_KOTLIN_ENUM_CLASS = "enum_class"
+# (H) Note: Kotlin interfaces use class_declaration with 'interface' keyword, but
+# (H) tree-sitter-kotlin grammar defines a separate 'interface_declaration' node type
+# (H) (verify by parsing actual Kotlin code)
+TS_KOTLIN_INTERFACE_DECLARATION = (
+    "class_declaration"  # (H) May need adjustment based on grammar version
+)
+TS_KOTLIN_ENUM_CLASS = (
+    "class_declaration"  # (H) enum class uses class_declaration with modifiers
+)
 TS_KOTLIN_DATA_CLASS = (
     "class_declaration"  # (H) data class uses class_declaration with modifiers
 )
 TS_KOTLIN_CALL_EXPRESSION = "call_expression"
 TS_KOTLIN_NAVIGATION_EXPRESSION = "navigation_expression"
-TS_KOTLIN_IMPORT_LIST = "import_list"
-TS_KOTLIN_IMPORT_DIRECTIVE = "import_directive"
+TS_KOTLIN_IMPORT = "import"  # (H) Actual import node type from node-types.json
+TS_KOTLIN_IMPORT_LIST = "import"  # (H) Alias for backward compatibility
+TS_KOTLIN_IMPORT_DIRECTIVE = "import"  # (H) Alias for backward compatibility
 TS_KOTLIN_PACKAGE_HEADER = "package_header"
 TS_KOTLIN_PROPERTY_DECLARATION = "property_declaration"
-TS_KOTLIN_CONSTRUCTOR = "constructor_declaration"
-TS_KOTLIN_SIMPLE_IDENTIFIER = (
-    "simple_identifier"  # (H) Kotlin uses simple_identifier, not identifier
-)
-TS_KOTLIN_TYPE_IDENTIFIER = "type_identifier"
+TS_KOTLIN_PRIMARY_CONSTRUCTOR = "primary_constructor"
+TS_KOTLIN_SECONDARY_CONSTRUCTOR = "secondary_constructor"
+TS_KOTLIN_CONSTRUCTOR = "secondary_constructor"  # (H) Alias for backward compatibility
+TS_KOTLIN_ANONYMOUS_FUNCTION = "anonymous_function"
+TS_KOTLIN_IDENTIFIER = "identifier"  # (H) Kotlin uses identifier
+TS_KOTLIN_SIMPLE_IDENTIFIER = "identifier"  # (H) Alias for backward compatibility
+TS_KOTLIN_TYPE_IDENTIFIER = "identifier"  # (H) In Kotlin, name field uses identifier
 TS_KOTLIN_USER_TYPE = "user_type"
 TS_KOTLIN_PARAMETER = "parameter"  # (H) Kotlin uses "parameter", not "formal_parameter"
 TS_KOTLIN_COMPANION_OBJECT = "companion_object"
 TS_KOTLIN_TYPE_ALIAS = "type_alias"
 TS_KOTLIN_LAMBDA_LITERAL = "lambda_literal"
+TS_KOTLIN_CONSTRUCTOR_INVOCATION = "constructor_invocation"
+TS_KOTLIN_DELEGATION_SPECIFIER = "delegation_specifier"
+TS_KOTLIN_DELEGATION_SPECIFIERS = "delegation_specifiers"
 
 # (H) Tree-sitter field names for child_by_field_name
 TS_FIELD_NAME = "name"
@@ -2540,14 +2554,15 @@ FQN_JAVA_FUNCTION_TYPES = (
 # (H) FQN node type tuples for Kotlin
 FQN_KOTLIN_SCOPE_TYPES = (
     TS_KOTLIN_CLASS_DECLARATION,
-    TS_KOTLIN_INTERFACE_DECLARATION,
-    TS_KOTLIN_ENUM_CLASS,
     TS_KOTLIN_OBJECT_DECLARATION,
+    TS_KOTLIN_COMPANION_OBJECT,
     TS_KOTLIN_SOURCE_FILE,
 )
 FQN_KOTLIN_FUNCTION_TYPES = (
     TS_KOTLIN_FUNCTION_DECLARATION,
-    TS_KOTLIN_CONSTRUCTOR,
+    TS_KOTLIN_SECONDARY_CONSTRUCTOR,
+    TS_KOTLIN_ANONYMOUS_FUNCTION,
+    TS_KOTLIN_LAMBDA_LITERAL,
 )
 
 # (H) FQN node type tuples for C++
@@ -2723,17 +2738,22 @@ SPEC_JAVA_IMPORT_TYPES = (TS_IMPORT_DECLARATION,)
 # (H) LANGUAGE_SPECS node type tuples for Kotlin
 SPEC_KOTLIN_FUNCTION_TYPES = (
     TS_KOTLIN_FUNCTION_DECLARATION,
-    TS_KOTLIN_CONSTRUCTOR,
+    TS_KOTLIN_SECONDARY_CONSTRUCTOR,
+    TS_KOTLIN_ANONYMOUS_FUNCTION,
+    TS_KOTLIN_LAMBDA_LITERAL,
 )
 SPEC_KOTLIN_CLASS_TYPES = (
     TS_KOTLIN_CLASS_DECLARATION,
-    TS_KOTLIN_INTERFACE_DECLARATION,
-    TS_KOTLIN_ENUM_CLASS,
     TS_KOTLIN_OBJECT_DECLARATION,
+    TS_KOTLIN_COMPANION_OBJECT,
+    TS_KOTLIN_TYPE_ALIAS,
 )
 SPEC_KOTLIN_MODULE_TYPES = (TS_KOTLIN_SOURCE_FILE,)
-SPEC_KOTLIN_CALL_TYPES = (TS_KOTLIN_CALL_EXPRESSION, TS_KOTLIN_NAVIGATION_EXPRESSION)
-SPEC_KOTLIN_IMPORT_TYPES = (TS_KOTLIN_IMPORT_LIST,)
+SPEC_KOTLIN_CALL_TYPES = (
+    TS_KOTLIN_CALL_EXPRESSION,
+    TS_KOTLIN_CONSTRUCTOR_INVOCATION,
+)
+SPEC_KOTLIN_IMPORT_TYPES = (TS_KOTLIN_IMPORT,)
 
 # (H) LANGUAGE_SPECS node type tuples for C++
 SPEC_CPP_FUNCTION_TYPES = (

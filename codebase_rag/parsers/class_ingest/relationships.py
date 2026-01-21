@@ -74,11 +74,27 @@ def create_inheritance_relationship(
     ingestor: IngestorProtocol,
 ) -> None:
     parent_type = get_node_type_for_inheritance(parent_qn, function_registry)
-    ingestor.ensure_relationship_batch(
-        (child_node_type, cs.KEY_QUALIFIED_NAME, child_qn),
-        cs.RelationshipType.INHERITS,
-        (parent_type, cs.KEY_QUALIFIED_NAME, parent_qn),
+
+    # (H) If child is a class and parent is an interface, create IMPLEMENTS relationship
+    # (H) Interface extending interface should still be INHERITS
+    child_is_class = child_node_type in (
+        str(NodeType.CLASS),
+        str(cs.NodeLabel.CLASS),
     )
+    parent_is_interface = parent_type == str(NodeType.INTERFACE)
+
+    if child_is_class and parent_is_interface:
+        ingestor.ensure_relationship_batch(
+            (child_node_type, cs.KEY_QUALIFIED_NAME, child_qn),
+            cs.RelationshipType.IMPLEMENTS,
+            (parent_type, cs.KEY_QUALIFIED_NAME, parent_qn),
+        )
+    else:
+        ingestor.ensure_relationship_batch(
+            (child_node_type, cs.KEY_QUALIFIED_NAME, child_qn),
+            cs.RelationshipType.INHERITS,
+            (parent_type, cs.KEY_QUALIFIED_NAME, parent_qn),
+        )
 
 
 def create_implements_relationship(

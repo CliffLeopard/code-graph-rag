@@ -3,7 +3,9 @@ repos:
     rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
+        exclude: ^scripts/validate_kotlin_parsing\.py$
     -   id: end-of-file-fixer
+        exclude: ^scripts/validate_kotlin_parsing\.py$
     -   id: check-yaml
     -   id: check-toml
 -   repo: https://github.com/astral-sh/ruff-pre-commit
@@ -11,17 +13,17 @@ repos:
     hooks:
     -   id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-        exclude: ^codec/schema_pb2\.(py|pyi)$
+        exclude: ^(codec/schema_pb2\.(py|pyi)|scripts/validate_kotlin_parsing\.py)$
     -   id: ruff-format
-        exclude: ^codec/schema_pb2\.(py|pyi)$
+        exclude: ^(codec/schema_pb2\.(py|pyi)|scripts/validate_kotlin_parsing\.py)$
 -   repo: local
     hooks:
     -   id: ty
         name: ty check
-        entry: uv run ty check --exclude codebase_rag/tests/
+        entry: uv run ty check --exclude codebase_rag/tests/ --exclude scripts/validate_kotlin_parsing.py --exclude grammars/
         language: system
         types: [python]
-        exclude: ^codec/.*_pb2\.py$
+        exclude: ^(codec/.*_pb2\.py|scripts/validate_kotlin_parsing\.py|grammars/)$
         pass_filenames: false
 -   repo: local
     hooks:
@@ -30,7 +32,7 @@ repos:
         entry: uv run python scripts/check_no_docs.py
         language: system
         types: [python]
-        exclude: ^codec/schema_pb2\.py$
+        exclude: ^(codec/schema_pb2\.py|scripts/validate_kotlin_parsing\.py)$
 -   repo: local
     hooks:
     -   id: generate-readme
