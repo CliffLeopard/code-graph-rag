@@ -25,7 +25,7 @@ class KotlinTypeResolverMixin:
     ast_cache: "ASTCacheProtocol"
     _fqn_to_module_qn: dict[str, list[str]]
 
-    def _module_qn_to_java_fqn(self, module_qn: str) -> str | None:
+    def _module_qn_to_kotlin_fqn(self, module_qn: str) -> str | None:
         parts = module_qn.split(cs.SEPARATOR_DOT)
         package_start_idx = find_package_start_index(parts)
         if package_start_idx is None:
@@ -67,7 +67,7 @@ class KotlinTypeResolverMixin:
 
         ranked: list[tuple[tuple[int, int, int], str]] = []
         for idx, candidate in enumerate(candidates):
-            candidate_fqn = self._module_qn_to_java_fqn(candidate)
+            candidate_fqn = self._module_qn_to_kotlin_fqn(candidate)
 
             if candidate_fqn == class_qn:
                 match_penalty = 0
@@ -100,8 +100,9 @@ class KotlinTypeResolverMixin:
         return []
 
     def _resolve_java_type_name(self, type_name: str, module_qn: str) -> str:
+        """Resolve Kotlin type name to fully qualified name."""
         if not type_name:
-            return cs.JAVA_TYPE_OBJECT
+            return "Any"  # (H) Kotlin's top-level type
 
         if cs.SEPARATOR_DOT in type_name:
             return type_name
@@ -110,10 +111,23 @@ class KotlinTypeResolverMixin:
         is_nullable = type_name.endswith("?")
         base_type = type_name.rstrip("?")
 
-        if base_type in cs.JAVA_PRIMITIVE_TYPES:
+        # (H) Kotlin primitive types (mapped to JVM types)
+        kotlin_primitives = {
+            "Int",
+            "Long",
+            "Double",
+            "Float",
+            "Boolean",
+            "Char",
+            "Byte",
+            "Short",
+        }
+        if base_type in kotlin_primitives or base_type in cs.JAVA_PRIMITIVE_TYPES:
             return f"{base_type}?" if is_nullable else base_type
 
+        # (H) Kotlin wrapper types (String, etc.)
         if base_type in cs.JAVA_WRAPPER_TYPES:
+            # (H) Kotlin String is kotlin.String, but we use java.lang.String for compatibility
             resolved = f"{cs.JAVA_LANG_PREFIX}{base_type}"
             return f"{resolved}?" if is_nullable else resolved
 

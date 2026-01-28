@@ -11,6 +11,7 @@ from ..types_defs import (
 from .import_processor import ImportProcessor
 from .java import JavaTypeInferenceEngine
 from .js_ts import JsTypeInferenceEngine
+from .kotlin import KotlinTypeInferenceEngine
 from .lua import LuaTypeInferenceEngine
 from .py import PythonTypeInferenceEngine, resolve_class_name
 
@@ -42,6 +43,7 @@ class TypeInferenceEngine:
         self.simple_name_lookup = simple_name_lookup
 
         self._java_type_inference: JavaTypeInferenceEngine | None = None
+        self._kotlin_type_inference: KotlinTypeInferenceEngine | None = None
         self._lua_type_inference: LuaTypeInferenceEngine | None = None
         self._js_type_inference: JsTypeInferenceEngine | None = None
         self._python_type_inference: PythonTypeInferenceEngine | None = None
@@ -61,6 +63,22 @@ class TypeInferenceEngine:
                 simple_name_lookup=self.simple_name_lookup,
             )
         return self._java_type_inference
+
+    @property
+    def kotlin_type_inference(self) -> KotlinTypeInferenceEngine:
+        if self._kotlin_type_inference is None:
+            self._kotlin_type_inference = KotlinTypeInferenceEngine(
+                import_processor=self.import_processor,
+                function_registry=self.function_registry,
+                repo_path=self.repo_path,
+                project_name=self.project_name,
+                ast_cache=self.ast_cache,
+                queries=self.queries,
+                module_qn_to_file_path=self.module_qn_to_file_path,
+                class_inheritance=self.class_inheritance,
+                simple_name_lookup=self.simple_name_lookup,
+            )
+        return self._kotlin_type_inference
 
     @property
     def lua_type_inference(self) -> LuaTypeInferenceEngine:
@@ -114,6 +132,10 @@ class TypeInferenceEngine:
                 )
             case cs.SupportedLanguage.JAVA:
                 return self.java_type_inference.build_variable_type_map(
+                    caller_node, module_qn
+                )
+            case cs.SupportedLanguage.KOTLIN:
+                return self.kotlin_type_inference.build_variable_type_map(
                     caller_node, module_qn
                 )
             case cs.SupportedLanguage.LUA:

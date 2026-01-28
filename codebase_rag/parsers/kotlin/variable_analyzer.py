@@ -36,7 +36,7 @@ class KotlinVariableAnalyzerMixin:
     ) -> str | None: ...
 
     @abstractmethod
-    def _find_containing_java_class(self, node: ASTNode) -> ASTNode | None: ...
+    def _find_containing_kotlin_class(self, node: ASTNode) -> ASTNode | None: ...
 
     @abstractmethod
     def build_variable_type_map(
@@ -46,15 +46,15 @@ class KotlinVariableAnalyzerMixin:
     def _collect_all_variable_types(
         self, scope_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
-        self._analyze_java_parameters(scope_node, local_var_types, module_qn)
-        self._analyze_java_local_variables(scope_node, local_var_types, module_qn)
-        self._analyze_java_class_fields(scope_node, local_var_types, module_qn)
-        self._analyze_java_constructor_assignments(
+        self._analyze_kotlin_parameters(scope_node, local_var_types, module_qn)
+        self._analyze_kotlin_local_variables(scope_node, local_var_types, module_qn)
+        self._analyze_kotlin_class_fields(scope_node, local_var_types, module_qn)
+        self._analyze_kotlin_constructor_assignments(
             scope_node, local_var_types, module_qn
         )
-        self._analyze_java_enhanced_for_loops(scope_node, local_var_types, module_qn)
+        self._analyze_kotlin_for_loops(scope_node, local_var_types, module_qn)
 
-    def _analyze_java_parameters(
+    def _analyze_kotlin_parameters(
         self, scope_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
         params_node = scope_node.child_by_field_name(cs.FIELD_PARAMETERS)
@@ -105,25 +105,31 @@ class KotlinVariableAnalyzerMixin:
             logger.debug(ls.JAVA_PARAM.format(name=param_name, type=resolved_type))
         else:
             # (H) Kotlin allows type inference, so parameter might not have explicit type
-            # (H) We'll use Any as fallback
-            local_var_types[param_name] = cs.JAVA_TYPE_OBJECT
-            logger.debug(
-                ls.JAVA_PARAM.format(name=param_name, type=cs.JAVA_TYPE_OBJECT)
-            )
+            # (H) Use Any as fallback (Kotlin's top-level type)
+            local_var_types[param_name] = "Any"
+            logger.debug(ls.JAVA_PARAM.format(name=param_name, type="Any"))
 
     def _process_spread_parameter(
         self, param_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
+        """Process Kotlin vararg parameter (spread parameter)."""
+        # (H) Kotlin vararg: vararg name: Type
         param_name = None
         param_type = None
 
         for subchild in param_node.children:
-            if subchild.type == cs.TS_TYPE_IDENTIFIER:
+            # (H) Kotlin type identifier
+            if subchild.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
                 if decoded_text := safe_decode_text(subchild):
-                    param_type = f"{decoded_text}{cs.JAVA_ARRAY_SUFFIX}"
-            elif subchild.type == cs.TS_VARIABLE_DECLARATOR:
-                if name_node := subchild.child_by_field_name(cs.FIELD_NAME):
-                    param_name = safe_decode_text(name_node)
+                    # (H) Kotlin uses Array<T> for vararg, not T[]
+                    param_type = f"Array<{decoded_text}>"
+            elif subchild.type == cs.TS_KOTLIN_USER_TYPE:
+                # (H) Handle user_type for vararg
+                if type_name := _extract_type_from_node(subchild):
+                    param_type = f"Array<{type_name}>"
+            # (H) Kotlin parameter name
+            elif subchild.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                param_name = safe_decode_text(subchild)
 
         if param_name and param_type:
             resolved_type = self._resolve_java_type_name(param_type, module_qn)
@@ -132,7 +138,7 @@ class KotlinVariableAnalyzerMixin:
                 ls.JAVA_VARARGS_PARAM.format(name=param_name, type=resolved_type)
             )
 
-    def _analyze_java_local_variables(
+    def _analyze_kotlin_local_variables(
         self, scope_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
         self._traverse_for_local_variables(scope_node, local_var_types, module_qn)
@@ -140,24 +146,25 @@ class KotlinVariableAnalyzerMixin:
     def _traverse_for_local_variables(
         self, node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
-        # (H) Kotlin uses property_declaration for both class properties and local variables
+        """Traverse AST for Kotlin local variable declarations."""
+        # (H) Kotlin uses property_declaration for class properties
+        # (H) For local variables, Kotlin uses variable_declaration or property_declaration
         if node.type in [
-            cs.TS_LOCAL_VARIABLE_DECLARATION,
             cs.TS_KOTLIN_PROPERTY_DECLARATION,
             "variable_declaration",
         ]:
-            self._process_java_variable_declaration(node, local_var_types, module_qn)
+            self._process_kotlin_variable_declaration(node, local_var_types, module_qn)
 
         for child in node.children:
             self._traverse_for_local_variables(child, local_var_types, module_qn)
 
-    def _process_java_variable_declaration(
+    def _process_kotlin_variable_declaration(
         self, decl_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
+        """Process Kotlin variable declaration."""
         # (H) Kotlin variable declarations can be:
         # (H) 1. property_declaration with variable_declaration and type
         # (H) 2. variable_declaration directly
-        # (H) 3. local_variable_declaration (Java style, for compatibility)
 
         # (H) Check if this is a property_declaration
         if decl_node.type == cs.TS_KOTLIN_PROPERTY_DECLARATION:
@@ -195,7 +202,7 @@ class KotlinVariableAnalyzerMixin:
                         local_var_types[var_name] = resolved_type
                     # (H) Type inference - try to infer from initializer
                     elif init_node := decl_node.child_by_field_name("initializer"):
-                        if inferred_type := self._infer_java_type_from_expression(
+                        if inferred_type := self._infer_kotlin_type_from_expression(
                             init_node, module_qn
                         ):
                             resolved_type = self._resolve_java_type_name(
@@ -203,18 +210,17 @@ class KotlinVariableAnalyzerMixin:
                             )
                             local_var_types[var_name] = resolved_type
                         else:
-                            local_var_types[var_name] = cs.JAVA_TYPE_OBJECT
+                            local_var_types[var_name] = (
+                                "Any"  # (H) Kotlin's top-level type
+                            )
             return
 
         if not declarator_node:
             return
 
         # (H) Kotlin variable declarator handling
-        if declarator_node.type == cs.TS_VARIABLE_DECLARATOR and declared_type:
-            self._process_variable_declarator(
-                declarator_node, declared_type, local_var_types, module_qn
-            )
-        elif declarator_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+        # (H) Kotlin style: val name: Type = value or val name = value (type inference)
+        if declarator_node.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
             # (H) Direct identifier (Kotlin style: val name: Type = value)
             var_name = safe_decode_text(declarator_node)
             if var_name:
@@ -225,7 +231,7 @@ class KotlinVariableAnalyzerMixin:
                     local_var_types[var_name] = resolved_type
                 # (H) Try to infer from initializer
                 elif init_node := decl_node.child_by_field_name("initializer"):
-                    if inferred_type := self._infer_java_type_from_expression(
+                    if inferred_type := self._infer_kotlin_type_from_expression(
                         init_node, module_qn
                     ):
                         resolved_type = self._resolve_java_type_name(
@@ -233,20 +239,31 @@ class KotlinVariableAnalyzerMixin:
                         )
                         local_var_types[var_name] = resolved_type
                     else:
-                        local_var_types[var_name] = cs.JAVA_TYPE_OBJECT
+                        local_var_types[var_name] = "Any"  # (H) Kotlin's top-level type
         else:
+            # (H) Check children for identifier
             for child in declarator_node.children:
-                if child.type == cs.TS_VARIABLE_DECLARATOR and declared_type:
-                    self._process_variable_declarator(
-                        child, declared_type, local_var_types, module_qn
-                    )
-                elif child.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+                if child.type == cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
                     var_name = safe_decode_text(child)
-                    if var_name and declared_type:
-                        resolved_type = self._resolve_java_type_name(
-                            declared_type, module_qn
-                        )
-                        local_var_types[var_name] = resolved_type
+                    if var_name:
+                        if declared_type:
+                            resolved_type = self._resolve_java_type_name(
+                                declared_type, module_qn
+                            )
+                            local_var_types[var_name] = resolved_type
+                        # (H) Try to infer from initializer
+                        elif init_node := decl_node.child_by_field_name("initializer"):
+                            if inferred_type := self._infer_kotlin_type_from_expression(
+                                init_node, module_qn
+                            ):
+                                resolved_type = self._resolve_java_type_name(
+                                    inferred_type, module_qn
+                                )
+                                local_var_types[var_name] = resolved_type
+                            else:
+                                local_var_types[var_name] = (
+                                    "Any"  # (H) Kotlin's top-level type
+                                )
 
     def _process_variable_declarator(
         self,
@@ -262,7 +279,7 @@ class KotlinVariableAnalyzerMixin:
             return
 
         if value_node := declarator_node.child_by_field_name(cs.FIELD_VALUE):
-            if inferred_type := self._infer_java_type_from_expression(
+            if inferred_type := self._infer_kotlin_type_from_expression(
                 value_node, module_qn
             ):
                 resolved_type = self._resolve_java_type_name(inferred_type, module_qn)
@@ -278,10 +295,10 @@ class KotlinVariableAnalyzerMixin:
             ls.JAVA_LOCAL_VAR_DECLARED.format(name=var_name, type=resolved_type)
         )
 
-    def _analyze_java_class_fields(
+    def _analyze_kotlin_class_fields(
         self, scope_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
-        if not (containing_class := self._find_containing_java_class(scope_node)):
+        if not (containing_class := self._find_containing_kotlin_class(scope_node)):
             return
 
         # (H) Kotlin class body is "class_body" field
@@ -294,24 +311,19 @@ class KotlinVariableAnalyzerMixin:
 
         for child in body_node.children:
             # (H) Kotlin class body contains property_declaration, function_declaration, etc.
-            if child.type in [
-                cs.TS_FIELD_DECLARATION,
-                cs.TS_KOTLIN_PROPERTY_DECLARATION,
-            ]:
+            if child.type == cs.TS_KOTLIN_PROPERTY_DECLARATION:
                 field_info = extract_field_info(child)
                 field_name = field_info.get(cs.FIELD_NAME)
                 field_type = field_info.get(cs.FIELD_TYPE)
 
                 if field_name:
-                    this_field_ref = (
-                        f"{cs.JAVA_KEYWORD_THIS}{cs.SEPARATOR_DOT}{field_name}"
-                    )
+                    this_field_ref = f"this{cs.SEPARATOR_DOT}{field_name}"
                     if field_type:
                         resolved_type = self._resolve_java_type_name(
                             str(field_type), module_qn
                         )
                     else:
-                        resolved_type = cs.JAVA_TYPE_OBJECT
+                        resolved_type = "Any"  # (H) Kotlin's top-level type
 
                     local_var_types[this_field_ref] = resolved_type
 
@@ -321,7 +333,7 @@ class KotlinVariableAnalyzerMixin:
                         ls.JAVA_CLASS_FIELD.format(name=field_name, type=resolved_type)
                     )
 
-    def _analyze_java_constructor_assignments(
+    def _analyze_kotlin_constructor_assignments(
         self, scope_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
         self._traverse_for_assignments(scope_node, local_var_types, module_qn)
@@ -330,12 +342,12 @@ class KotlinVariableAnalyzerMixin:
         self, node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
         if node.type == cs.TS_ASSIGNMENT_EXPRESSION:
-            self._process_java_assignment(node, local_var_types, module_qn)
+            self._process_kotlin_assignment(node, local_var_types, module_qn)
 
         for child in node.children:
             self._traverse_for_assignments(child, local_var_types, module_qn)
 
-    def _process_java_assignment(
+    def _process_kotlin_assignment(
         self, assignment_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
         left_node = assignment_node.child_by_field_name(cs.FIELD_LEFT)
@@ -344,31 +356,32 @@ class KotlinVariableAnalyzerMixin:
         if not left_node or not right_node:
             return
 
-        if not (var_name := self._extract_java_variable_reference(left_node)):
+        if not (var_name := self._extract_kotlin_variable_reference(left_node)):
             return
 
-        if inferred_type := self._infer_java_type_from_expression(
+        if inferred_type := self._infer_kotlin_type_from_expression(
             right_node, module_qn
         ):
             resolved_type = self._resolve_java_type_name(inferred_type, module_qn)
             local_var_types[var_name] = resolved_type
             logger.debug(ls.JAVA_ASSIGNMENT.format(name=var_name, type=resolved_type))
 
-    def _extract_java_variable_reference(self, node: ASTNode) -> str | None:
+    def _extract_kotlin_variable_reference(self, node: ASTNode) -> str | None:
+        """Extract variable reference from Kotlin expression node."""
         match node.type:
-            case cs.TS_IDENTIFIER | cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
+            case cs.TS_KOTLIN_IDENTIFIER | cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
                 return safe_decode_text(node)
-            case cs.TS_FIELD_ACCESS | cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
-                # (H) Kotlin uses navigation_expression for field access
-                object_node = node.child_by_field_name(cs.FIELD_OBJECT)
-                if not object_node:
-                    object_node = node.child_by_field_name("receiver")
-                field_node = node.child_by_field_name(cs.FIELD_FIELD)
+            case cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+                # (H) Kotlin navigation_expression: receiver.field
+                receiver_node = node.child_by_field_name("receiver")
+                if not receiver_node:
+                    receiver_node = node.child_by_field_name(cs.FIELD_OBJECT)
+                field_node = node.child_by_field_name("field")
                 if not field_node:
-                    field_node = node.child_by_field_name("field")
+                    field_node = node.child_by_field_name(cs.FIELD_FIELD)
 
-                if object_node and field_node:
-                    object_name = safe_decode_text(object_node)
+                if receiver_node and field_node:
+                    object_name = safe_decode_text(receiver_node)
                     field_name = safe_decode_text(field_node)
 
                     if object_name and field_name:
@@ -378,7 +391,7 @@ class KotlinVariableAnalyzerMixin:
 
         return None
 
-    def _analyze_java_enhanced_for_loops(
+    def _analyze_kotlin_for_loops(
         self, scope_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
         self._traverse_for_enhanced_for_loops(scope_node, local_var_types, module_qn)
@@ -386,8 +399,10 @@ class KotlinVariableAnalyzerMixin:
     def _traverse_for_enhanced_for_loops(
         self, node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
+        """Traverse AST for Kotlin for loops."""
         # (H) Kotlin uses "for_statement" with "loop_parameter"
-        if node.type in [cs.TS_ENHANCED_FOR_STATEMENT, "for_statement"]:
+        # (H) Syntax: for (item in collection) or for ((index, item) in collection.withIndex())
+        if node.type == "for_statement":
             self._process_enhanced_for_statement(node, local_var_types, module_qn)
 
         for child in node.children:
@@ -421,7 +436,7 @@ class KotlinVariableAnalyzerMixin:
                 # (H) Try to infer type from collection
                 collection_node = for_node.child_by_field_name("collection")
                 if collection_node:
-                    if inferred_type := self._infer_java_type_from_expression(
+                    if inferred_type := self._infer_kotlin_type_from_expression(
                         collection_node, module_qn
                     ):
                         # (H) Extract element type from collection type (e.g., List<String> -> String)
@@ -435,9 +450,9 @@ class KotlinVariableAnalyzerMixin:
                                 local_var_types[var_name] = resolved_type
                                 return
                         # (H) Fallback to Object
-                        local_var_types[var_name] = cs.JAVA_TYPE_OBJECT
+                        local_var_types[var_name] = "Any"  # (H) Kotlin's top-level type
                 else:
-                    local_var_types[var_name] = cs.JAVA_TYPE_OBJECT
+                    local_var_types[var_name] = "Any"  # (H) Kotlin's top-level type
         else:
             self._extract_for_loop_variable_from_children(
                 for_node, local_var_types, module_qn
@@ -462,76 +477,118 @@ class KotlinVariableAnalyzerMixin:
     def _extract_for_loop_variable_from_children(
         self, for_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> None:
+        """Extract for loop variable from Kotlin for_statement children."""
+        # (H) Kotlin for loop: for (item in collection)
+        # (H) Look for loop_parameter or variable_declaration in children
         for child in for_node.children:
-            if child.type != cs.TS_VARIABLE_DECLARATOR:
-                continue
+            # (H) Kotlin uses loop_parameter or variable_declaration
+            if child.type in ["loop_parameter", "variable_declaration"]:
+                type_node = child.child_by_field_name(cs.FIELD_TYPE)
+                name_node = child.child_by_field_name(cs.FIELD_NAME)
+                if not name_node:
+                    name_node = child.child_by_field_name(
+                        cs.TS_KOTLIN_SIMPLE_IDENTIFIER
+                    )
 
-            if not (name_node := child.child_by_field_name(cs.FIELD_NAME)):
-                continue
+                if type_node and name_node:
+                    self._register_for_loop_variable(
+                        type_node, name_node, local_var_types, module_qn
+                    )
+                elif name_node:
+                    # (H) Type inference - try to infer from collection
+                    var_name = safe_decode_text(name_node)
+                    if var_name:
+                        collection_node = for_node.child_by_field_name("collection")
+                        if collection_node:
+                            if inferred_type := self._infer_kotlin_type_from_expression(
+                                collection_node, module_qn
+                            ):
+                                # (H) Extract element type from collection type
+                                if "<" in inferred_type and ">" in inferred_type:
+                                    element_type = inferred_type.split("<")[1].split(
+                                        ">"
+                                    )[0]
+                                    resolved_type = self._resolve_java_type_name(
+                                        element_type, module_qn
+                                    )
+                                    local_var_types[var_name] = resolved_type
+                                    return
+                        local_var_types[var_name] = "Any"  # (H) Kotlin's top-level type
 
-            if not (var_name := safe_decode_text(name_node)):
-                continue
-
-            if not (parent := child.parent):
-                continue
-
-            for sibling in parent.children:
-                if sibling.type == cs.TS_TYPE_IDENTIFIER:
-                    if var_type := safe_decode_text(sibling):
-                        resolved_type = self._resolve_java_type_name(
-                            var_type, module_qn
-                        )
-                        local_var_types[var_name] = resolved_type
-                        logger.debug(
-                            ls.JAVA_ENHANCED_FOR_VAR_ALT.format(
-                                name=var_name, type=resolved_type
-                            )
-                        )
-                        break
-
-    def _infer_java_type_from_expression(
+    def _infer_kotlin_type_from_expression(
         self, expr_node: ASTNode, module_qn: str
     ) -> str | None:
+        """Infer type from Kotlin expression node."""
         match expr_node.type:
-            case cs.TS_OBJECT_CREATION_EXPRESSION:
-                if type_node := expr_node.child_by_field_name(cs.FIELD_TYPE):
-                    return safe_decode_text(type_node)
+            # (H) Kotlin constructor invocation: ClassName(...)
+            case cs.TS_KOTLIN_CONSTRUCTOR_INVOCATION:
+                # (H) Extract type from constructor_invocation
+                for child in expr_node.children:
+                    if child.type == cs.TS_KOTLIN_USER_TYPE:
+                        return _extract_type_from_node(child)
+                    elif child.type == cs.TS_KOTLIN_TYPE_IDENTIFIER:
+                        if type_name := safe_decode_text(child):
+                            return self._resolve_java_type_name(type_name, module_qn)
+                return None
 
-            case cs.TS_METHOD_INVOCATION:
-                return self._infer_java_method_return_type(expr_node, module_qn)
+            # (H) Kotlin call expression: function() or object.method()
+            case cs.TS_KOTLIN_CALL_EXPRESSION:
+                return self._infer_kotlin_method_return_type(expr_node, module_qn)
 
-            case cs.TS_IDENTIFIER:
+            # (H) Kotlin identifier: variable name
+            case cs.TS_KOTLIN_IDENTIFIER | cs.TS_KOTLIN_SIMPLE_IDENTIFIER:
                 if var_name := safe_decode_text(expr_node):
                     return self._lookup_variable_type(var_name, module_qn)
 
-            case cs.TS_FIELD_ACCESS:
-                return self._infer_java_field_access_type(expr_node, module_qn)
+            # (H) Kotlin navigation expression: object.field or object.method
+            case cs.TS_KOTLIN_NAVIGATION_EXPRESSION:
+                return self._infer_kotlin_field_access_type(expr_node, module_qn)
 
-            case cs.TS_STRING_LITERAL:
-                return cs.JAVA_TYPE_STRING
+            # (H) Kotlin string literal
+            case "string_literal" | "character_literal":
+                return "String"  # (H) Kotlin String type
 
-            case cs.TS_INTEGER_LITERAL:
-                return cs.JAVA_TYPE_INT
+            # (H) Kotlin integer literal
+            case "integer_literal":
+                return "Int"  # (H) Kotlin Int type
 
-            case cs.TS_DECIMAL_FLOATING_POINT_LITERAL:
-                return cs.JAVA_TYPE_DOUBLE
+            # (H) Kotlin floating point literal
+            case "float_literal" | "real_literal":
+                return "Double"  # (H) Kotlin Double type
 
-            case cs.TS_TRUE | cs.TS_FALSE:
-                return cs.JAVA_TYPE_BOOLEAN
+            # (H) Kotlin boolean literals
+            case "true" | "false":
+                return "Boolean"  # (H) Kotlin Boolean type
 
-            case cs.TS_ARRAY_CREATION_EXPRESSION:
+            # (H) Kotlin array/list literals - try to infer from context
+            case "collection_literal" | "array_literal":
+                # (H) Try to get element type from context or type annotation
                 if type_node := expr_node.child_by_field_name(cs.FIELD_TYPE):
                     if base_type := safe_decode_text(type_node):
-                        return f"{base_type}{cs.JAVA_ARRAY_SUFFIX}"
+                        # (H) Kotlin uses List<T> or Array<T> syntax
+                        return self._resolve_java_type_name(base_type, module_qn)
+                # (H) Fallback: check first element if available
+                if expr_node.children:
+                    first_child = expr_node.children[0]
+                    if element_type := self._infer_kotlin_type_from_expression(
+                        first_child, module_qn
+                    ):
+                        # (H) Return as List<element_type> or Array<element_type>
+                        return f"List<{element_type}>"
+
+            # (H) Kotlin null literal
+            case "null":
+                return None  # (H) Null type - caller should handle
 
             case _:
                 pass
 
         return None
 
-    def _infer_java_method_return_type(
+    def _infer_kotlin_method_return_type(
         self, method_call_node: ASTNode, module_qn: str
     ) -> str | None:
+        """Infer return type from Kotlin method call."""
         call_info = extract_method_call_info(method_call_node)
         if not call_info:
             return None
@@ -548,23 +605,31 @@ class KotlinVariableAnalyzerMixin:
         )
         return self._resolve_java_method_return_type(call_string, module_qn)
 
-    def _infer_java_field_access_type(
+    def _infer_kotlin_field_access_type(
         self, field_access_node: ASTNode, module_qn: str
     ) -> str | None:
-        object_node = field_access_node.child_by_field_name(cs.FIELD_OBJECT)
-        field_node = field_access_node.child_by_field_name(cs.FIELD_FIELD)
+        """Infer type from Kotlin field/property access (navigation_expression)."""
+        # (H) Kotlin uses navigation_expression: receiver.field
+        # (H) Try to get receiver and field
+        receiver_node = field_access_node.child_by_field_name("receiver")
+        if not receiver_node:
+            receiver_node = field_access_node.child_by_field_name(cs.FIELD_OBJECT)
 
-        if not object_node or not field_node:
+        field_node = field_access_node.child_by_field_name("field")
+        if not field_node:
+            field_node = field_access_node.child_by_field_name(cs.FIELD_FIELD)
+
+        if not receiver_node or not field_node:
             return None
 
-        object_name = safe_decode_text(object_node)
+        object_name = safe_decode_text(receiver_node)
         field_name = safe_decode_text(field_node)
 
         if not object_name or not field_name:
             return None
 
         if object_type := self._lookup_variable_type(object_name, module_qn):
-            return self._lookup_java_field_type(object_type, field_name, module_qn)
+            return self._lookup_kotlin_field_type(object_type, field_name, module_qn)
         return None
 
     def _lookup_variable_type(self, var_name: str, module_qn: str) -> str | None:
@@ -597,12 +662,13 @@ class KotlinVariableAnalyzerMixin:
 
         variable_types = self.build_variable_type_map(root_node, module_qn)
 
-        this_var = f"{cs.JAVA_KEYWORD_THIS}{cs.SEPARATOR_DOT}{var_name}"
+        this_var = f"this{cs.SEPARATOR_DOT}{var_name}"
         return variable_types.get(var_name) or variable_types.get(this_var)
 
-    def _lookup_java_field_type(
+    def _lookup_kotlin_field_type(
         self, class_type: str, field_name: str, module_qn: str
     ) -> str | None:
+        """Lookup Kotlin property/field type in a class."""
         if not class_type or not field_name:
             return None
 
@@ -634,13 +700,20 @@ class KotlinVariableAnalyzerMixin:
     def _find_field_type_in_class(
         self, root_node: ASTNode, class_name: str, field_name: str, module_qn: str
     ) -> str | None:
+        # (H) Kotlin uses class_declaration, object_declaration, etc.
         for child in root_node.children:
-            if child.type == cs.TS_CLASS_DECLARATION:
+            if child.type in cs.SPEC_KOTLIN_CLASS_TYPES:
                 class_info = extract_class_info(child)
                 if class_info.get(cs.FIELD_NAME) == class_name:
-                    if class_body := child.child_by_field_name(cs.FIELD_BODY):
+                    # (H) Kotlin class body is "class_body" field
+                    class_body = child.child_by_field_name(cs.FIELD_BODY)
+                    if not class_body:
+                        class_body = child.child_by_field_name("class_body")
+
+                    if class_body:
                         for field_child in class_body.children:
-                            if field_child.type == cs.TS_FIELD_DECLARATION:
+                            # (H) Kotlin uses property_declaration, not field_declaration
+                            if field_child.type == cs.TS_KOTLIN_PROPERTY_DECLARATION:
                                 field_info = extract_field_info(field_child)
                                 if field_info.get(cs.FIELD_NAME) == field_name:
                                     if field_type := field_info.get(cs.FIELD_TYPE):

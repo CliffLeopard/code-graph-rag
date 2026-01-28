@@ -53,43 +53,60 @@ class KotlinMethodResolverMixin:
     @abstractmethod
     def _lookup_variable_type(self, var_name: str, module_qn: str) -> str | None: ...
 
-    def _resolve_java_object_type(
+    def _resolve_kotlin_object_type(
         self, object_ref: str, local_var_types: dict[str, str], module_qn: str
     ) -> str | None:
+        """Resolve Kotlin object reference type."""
+        # (H) Check local variable types first
         if object_ref in local_var_types:
             return local_var_types[object_ref]
 
-        # (H) Check for 'this' reference - find the containing class (using trie for O(k) lookup)
-        if object_ref == cs.JAVA_KEYWORD_THIS:
+        # (H) Kotlin 'this' reference - find the containing class/object
+        # (H) Kotlin supports 'this' in classes, objects, and companion objects
+        if object_ref == "this":
+            # (H) Find the containing Kotlin class/object in the current module
             return next(
                 (
                     str(qn)
                     for qn, entity_type in self.function_registry.find_with_prefix(
                         module_qn
                     )
-                    if entity_type == NodeType.CLASS
+                    if entity_type in [NodeType.CLASS, NodeType.INTERFACE]
                 ),
                 None,
             )
 
-        # (H) Check for 'super' reference - for super calls, look at parent classes (using trie for O(k) lookup)
-        if object_ref == cs.JAVA_KEYWORD_SUPER:
-            for qn, entity_type in self.function_registry.find_with_prefix(module_qn):
-                if entity_type == NodeType.CLASS:
-                    if parent_qn := self._find_parent_class(qn):
-                        return parent_qn
+        # (H) Kotlin 'super' reference - for super calls, look at parent classes
+        # (H) Kotlin uses 'super' to call parent class methods, similar to Java
+        if object_ref == "super":
+            # (H) Find the current class in the module
+            current_class_qn = next(
+                (
+                    str(qn)
+                    for qn, entity_type in self.function_registry.find_with_prefix(
+                        module_qn
+                    )
+                    if entity_type in [NodeType.CLASS, NodeType.INTERFACE]
+                ),
+                None,
+            )
+            if current_class_qn:
+                # (H) Get parent class from inheritance hierarchy
+                if parent_qn := self._find_parent_class(current_class_qn):
+                    return parent_qn
             return None
 
+        # (H) Check import mapping for imported classes
         if module_qn in self.import_processor.import_mapping:
             import_map = self.import_processor.import_mapping[module_qn]
             if object_ref in import_map:
                 return import_map[object_ref]
 
+        # (H) Check same package - Kotlin classes in the same package
         simple_class_qn = f"{module_qn}{cs.SEPARATOR_DOT}{object_ref}"
-        if (
-            simple_class_qn in self.function_registry
-            and self.function_registry[simple_class_qn] == NodeType.CLASS
-        ):
+        if simple_class_qn in self.function_registry and self.function_registry[
+            simple_class_qn
+        ] in [NodeType.CLASS, NodeType.INTERFACE]:
             return simple_class_qn
 
         return None
@@ -107,7 +124,13 @@ class KotlinMethodResolverMixin:
                 for qn, entity_type in self.function_registry.find_with_prefix(
                     module_qn
                 )
-                if entity_type in cs.JAVA_CALLABLE_ENTITY_TYPES
+                if entity_type
+                in [
+                    NodeType.CLASS,
+                    NodeType.INTERFACE,
+                    NodeType.METHOD,
+                    NodeType.FUNCTION,
+                ]  # (H) Kotlin callable entities
                 and qn.split(cs.CHAR_PAREN_OPEN)[0].endswith(
                     f"{cs.SEPARATOR_DOT}{method_name}"
                 )
@@ -270,29 +293,22 @@ class KotlinMethodResolverMixin:
     def _find_method_return_type_in_ast(
         self, node: ASTNode, class_name: str, method_name: str, module_qn: str
     ) -> str | None:
-        # (H) Support both Java and Kotlin AST node types
-        # (H) In tree-sitter-kotlin, all class-like declarations use class_declaration
-        if node.type in [
-            cs.TS_CLASS_DECLARATION,
-            cs.TS_KOTLIN_CLASS_DECLARATION,
-            cs.TS_KOTLIN_OBJECT_DECLARATION,
-        ]:
-            # (H) Check name field (different for Kotlin vs Java)
+        """Find method return type in Kotlin AST."""
+        # (H) Kotlin uses class_declaration, object_declaration, etc.
+        if node.type in cs.SPEC_KOTLIN_CLASS_TYPES:
+            # (H) Check name field (Kotlin uses type_identifier or name field)
             name_node = node.child_by_field_name(cs.TS_FIELD_NAME)
             if not name_node:
-                name_node = node.child_by_field_name(cs.KEY_NAME)
+                name_node = node.child_by_field_name("type_identifier")
 
             if name_node and safe_decode_text(name_node) == class_name:
-                # (H) For Kotlin class_declaration, check class_body
-                # (H) For Java, check body field
+                # (H) Kotlin class body is "class_body" field
                 body_node = node.child_by_field_name("class_body")
-                if not body_node:
-                    body_node = node.child_by_field_name("body")
                 if not body_node:
                     body_node = node.child_by_field_name(cs.FIELD_BODY)
                 if body_node:
                     return self._search_methods_in_class_body(
-                        body_node, method_name, module_qn, node.type
+                        body_node, method_name, module_qn
                     )
 
         for child in node.children:
@@ -304,43 +320,32 @@ class KotlinMethodResolverMixin:
         return None
 
     def _search_methods_in_class_body(
-        self, body_node: ASTNode, method_name: str, module_qn: str, class_node_type: str
+        self, body_node: ASTNode, method_name: str, module_qn: str
     ) -> str | None:
-        # (H) Support both Java and Kotlin method declarations
-        # (H) In tree-sitter-kotlin, class_declaration is used for all class-like types
-        is_kotlin = class_node_type in [
-            cs.TS_KOTLIN_CLASS_DECLARATION,
-            cs.TS_KOTLIN_OBJECT_DECLARATION,
-        ]
+        """Search for method in Kotlin class body."""
+        from .utils import _extract_type_from_node
 
         for child in body_node.children:
-            if child.type == cs.TS_METHOD_DECLARATION or (
-                is_kotlin and child.type == cs.TS_KOTLIN_FUNCTION_DECLARATION
-            ):
-                # (H) Check method name (different field names for Kotlin vs Java)
+            # (H) Kotlin uses function_declaration, constructor, etc.
+            if child.type in cs.SPEC_KOTLIN_FUNCTION_TYPES:
+                # (H) Check method name (Kotlin uses simple_identifier or name field)
                 name_node = child.child_by_field_name(cs.TS_FIELD_NAME)
                 if not name_node:
-                    name_node = child.child_by_field_name(cs.KEY_NAME)
+                    name_node = child.child_by_field_name("simple_identifier")
 
                 if name_node and safe_decode_text(name_node) == method_name:
-                    # (H) Extract return type (different field names for Kotlin vs Java)
+                    # (H) Extract return type (Kotlin uses type or return_type field)
                     type_node = child.child_by_field_name(cs.TS_FIELD_TYPE)
                     if not type_node:
                         type_node = child.child_by_field_name("return_type")
-                    if not type_node:
-                        type_node = child.child_by_field_name(cs.KEY_TYPE)
 
                     if type_node:
-                        # (H) For Kotlin, use _extract_type_from_node to handle user_type
-                        if is_kotlin:
-                            from .utils import _extract_type_from_node
-
-                            return_type = _extract_type_from_node(type_node)
-                        else:
-                            return_type = safe_decode_text(type_node)
-
+                        # (H) Kotlin types can be user_type, type_identifier, etc.
+                        return_type = _extract_type_from_node(type_node)
                         if return_type:
                             return self._resolve_java_type_name(return_type, module_qn)
+                    # (H) Kotlin allows type inference - no explicit return type means Unit (void)
+                    return None
         return None
 
     def _heuristic_method_return_type(self, method_call: str) -> str | None:
@@ -354,39 +359,40 @@ class KotlinMethodResolverMixin:
         # (H) Consider this a best-effort guess, not a reliable type resolution.
         # (H) For better accuracy, ensure methods are properly registered in function_registry
         # (H) and AST traversal can locate method definitions.
+        # (H) Kotlin-specific heuristics for method return types
         method_lower = method_call.lower()
-        if cs.JAVA_GETTER_PATTERN in method_lower:
-            if cs.JAVA_NAME_PATTERN in method_lower:
-                return cs.JAVA_TYPE_STRING_FQN
-            if cs.JAVA_ID_PATTERN in method_lower:
-                return cs.JAVA_TYPE_LONG
-            if (
-                cs.JAVA_SIZE_PATTERN in method_lower
-                or cs.JAVA_LENGTH_PATTERN in method_lower
-            ):
-                return cs.JAVA_TYPE_INT
+        if "get" in method_lower:
+            if "name" in method_lower:
+                return "String"  # (H) Kotlin String type
+            if "id" in method_lower:
+                return "Long"  # (H) Kotlin Long type
+            if "size" in method_lower or "length" in method_lower:
+                return "Int"  # (H) Kotlin Int type
 
-        if (
-            cs.JAVA_CREATE_PATTERN in method_lower
-            or cs.JAVA_NEW_PATTERN in method_lower
-        ):
+        if "create" in method_lower or "new" in method_lower:
             parts = method_call.split(cs.SEPARATOR_DOT)
             if len(parts) >= 2:
                 method_name_lower = parts[-1].lower()
-                if cs.JAVA_USER_PATTERN in method_name_lower:
-                    return cs.JAVA_HEURISTIC_USER
-                if cs.JAVA_ORDER_PATTERN in method_name_lower:
-                    return cs.JAVA_HEURISTIC_ORDER
+                if "user" in method_name_lower:
+                    return "User"  # (H) Common Kotlin class name
+                if "order" in method_name_lower:
+                    return "Order"  # (H) Common Kotlin class name
 
-        if cs.JAVA_IS_PATTERN in method_lower or cs.JAVA_HAS_PATTERN in method_lower:
-            return cs.JAVA_TYPE_BOOLEAN
+        if "is" in method_lower or "has" in method_lower:
+            return "Boolean"  # (H) Kotlin Boolean type
 
         return None
 
-    def _do_resolve_java_method_call(
+    def _do_resolve_kotlin_method_call(
         self, call_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> tuple[str, str] | None:
-        if call_node.type != cs.TS_METHOD_INVOCATION:
+        """Resolve Kotlin method call - supports call_expression, navigation_expression, constructor_invocation."""
+        # (H) Kotlin uses call_expression, navigation_expression, and constructor_invocation
+        if call_node.type not in [
+            cs.TS_KOTLIN_CALL_EXPRESSION,
+            cs.TS_KOTLIN_NAVIGATION_EXPRESSION,
+            cs.TS_KOTLIN_CONSTRUCTOR_INVOCATION,
+        ]:
             return None
 
         call_info = extract_method_call_info(call_node)
@@ -415,7 +421,7 @@ class KotlinMethodResolverMixin:
 
         logger.debug(ls.JAVA_RESOLVING_OBJ_TYPE.format(object=object_ref))
         if not (
-            object_type := self._resolve_java_object_type(
+            object_type := self._resolve_kotlin_object_type(
                 str(object_ref), local_var_types, module_qn
             )
         ):

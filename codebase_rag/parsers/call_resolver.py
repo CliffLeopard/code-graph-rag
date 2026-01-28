@@ -701,3 +701,28 @@ class CallResolver:
             )
 
         return result
+
+    def resolve_kotlin_method_call(
+        self,
+        call_node: Node,
+        module_qn: str,
+        local_var_types: dict[str, str],
+    ) -> tuple[str, str] | None:
+        """Resolve Kotlin method call using KotlinTypeInferenceEngine."""
+        kotlin_engine = self.type_inference.kotlin_type_inference
+
+        result = kotlin_engine.resolve_kotlin_method_call(
+            call_node, local_var_types, module_qn
+        )
+
+        if result:
+            call_text = (
+                call_node.text.decode(cs.ENCODING_UTF8)
+                if call_node.text
+                else cs.TEXT_UNKNOWN
+            )
+            logger.debug(
+                ls.CALL_JAVA_RESOLVED.format(call_text=call_text, method_qn=result[1])
+            )
+
+        return result

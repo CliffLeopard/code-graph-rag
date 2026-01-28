@@ -21,7 +21,52 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from codebase_rag import constants as cs
 from codebase_rag.graph_updater import GraphUpdater
+from codebase_rag.main import connect_memgraph
 from codebase_rag.parser_loader import load_parsers
+
+
+def _extract_qn(node_tuple: tuple) -> str:
+    """从节点元组中提取 qualified_name"""
+    if isinstance(node_tuple, tuple) and len(node_tuple) > 2:
+        return node_tuple[2]
+    elif isinstance(node_tuple, dict):
+        return node_tuple.get("qualified_name", node_tuple.get("name", str(node_tuple)))
+    else:
+        return str(node_tuple)
+
+
+def delete_project_if_exists(project_path: Path) -> bool:
+    """
+    如果项目存在于数据库中，则删除它。
+    
+    使用官方 API：MemgraphIngestor.delete_project()，与 MCP index_repository 的实现方式一致。
+    参考：codebase_rag/mcp/tools.py 中的 index_repository 方法
+    """
+    project_name = project_path.resolve().name
+    
+    try:
+        # 使用官方 connect_memgraph 函数连接数据库（与 CLI 和 MCP 一致）
+        # 参考：codebase_rag/main.py 中的 connect_memgraph
+        with connect_memgraph(batch_size=1000) as ingestor:
+            # 检查项目是否存在
+            existing_projects = ingestor.list_projects()
+            
+            if project_name in existing_projects:
+                print(f"\n发现已存在的项目: {project_name}")
+                print(f"正在删除项目 '{project_name}' 及其所有数据...")
+                # 使用官方 API 删除项目（与 MCP index_repository 的实现一致）
+                ingestor.delete_project(project_name)
+                print(f"✓ 项目 '{project_name}' 已成功删除")
+                return True
+            else:
+                print(f"\n项目 '{project_name}' 不存在于数据库中，无需删除")
+                return False
+                
+    except Exception as e:
+        # 如果连接失败（例如数据库未运行），则跳过删除步骤
+        print(f"\n⚠ 无法连接到 Memgraph 数据库: {e}")
+        print("  跳过项目删除步骤（可能只是用于测试验证）")
+        return False
 
 
 def analyze_kotlin_project(project_path: Path) -> dict:
@@ -30,8 +75,12 @@ def analyze_kotlin_project(project_path: Path) -> dict:
     print(f"分析 Kotlin 项目: {project_path}")
     print(f"{'=' * 60}\n")
 
+    # 在解析前删除已存在的项目数据
+    print("步骤 1: 清理已存在的项目数据...")
+    delete_project_if_exists(project_path)
+    
     # 加载解析器
-    print("正在加载解析器...")
+    print("\n步骤 2: 正在加载解析器...")
     parsers, queries = load_parsers()
 
     if cs.SupportedLanguage.KOTLIN not in parsers:
@@ -166,22 +215,24 @@ def print_sample_data(stats: dict, sample_size: int = 10) -> None:
     if stats["calls"]:
         print(f"\n--- 调用关系（前 {sample_size} 个）---")
         for from_node, to_node in stats["calls"][:sample_size]:
-            from_qn = from_node[2] if len(from_node) > 2 else str(from_node)
-            to_qn = to_node[2] if len(to_node) > 2 else str(to_node)
-            print(f"  {from_qn} -> {to_qn}")
+            from_qn = _extract_qn(from_node)
+            to_qn = _extract_qn(to_node)
+            from_label = from_node[0] if isinstance(from_node, tuple) and len(from_node) > 0 else "Unknown"
+            to_label = to_node[0] if isinstance(to_node, tuple) and len(to_node) > 0 else "Unknown"
+            print(f"  [{from_label}] {from_qn} -> [{to_label}] {to_qn}")
 
     if stats["inherits"]:
         print(f"\n--- 继承关系（前 {sample_size} 个）---")
         for from_node, to_node in stats["inherits"][:sample_size]:
-            from_qn = from_node[2] if len(from_node) > 2 else str(from_node)
-            to_qn = to_node[2] if len(to_node) > 2 else str(to_node)
+            from_qn = _extract_qn(from_node)
+            to_qn = _extract_qn(to_node)
             print(f"  {from_qn} extends {to_qn}")
 
     if stats["implements"]:
         print(f"\n--- 实现关系（前 {sample_size} 个）---")
         for from_node, to_node in stats["implements"][:sample_size]:
-            from_qn = from_node[2] if len(from_node) > 2 else str(from_node)
-            to_qn = to_node[2] if len(to_node) > 2 else str(to_node)
+            from_qn = _extract_qn(from_node)
+            to_qn = _extract_qn(to_node)
             print(f"  {from_qn} implements {to_qn}")
 
 
@@ -217,6 +268,39 @@ def validate_parsing(stats: dict) -> bool:
     # 验证调用关系
     if stats["calls"]:
         print(f"✓ 调用关系: 通过 ({len(stats['calls'])} 个调用)")
+        # 验证调用关系的质量
+        unique_callers = len(set(_extract_qn(c[0]) for c in stats["calls"]))
+        unique_callees = len(set(_extract_qn(c[1]) for c in stats["calls"]))
+        print(f"  - 唯一调用者: {unique_callers}")
+        print(f"  - 唯一被调用者: {unique_callees}")
+        
+        # 检查是否有方法调用方法、函数调用函数等
+        method_to_method = 0
+        function_to_function = 0
+        method_to_function = 0
+        function_to_method = 0
+        
+        for from_node, to_node in stats["calls"]:
+            from_label = from_node[0] if isinstance(from_node, tuple) and len(from_node) > 0 else ""
+            to_label = to_node[0] if isinstance(to_node, tuple) and len(to_node) > 0 else ""
+            
+            if from_label == "Method" and to_label == "Method":
+                method_to_method += 1
+            elif from_label == "Function" and to_label == "Function":
+                function_to_function += 1
+            elif from_label == "Method" and to_label == "Function":
+                method_to_function += 1
+            elif from_label == "Function" and to_label == "Method":
+                function_to_method += 1
+        
+        if method_to_method > 0:
+            print(f"  - 方法 -> 方法: {method_to_method}")
+        if function_to_function > 0:
+            print(f"  - 函数 -> 函数: {function_to_function}")
+        if method_to_function > 0:
+            print(f"  - 方法 -> 函数: {method_to_function}")
+        if function_to_method > 0:
+            print(f"  - 函数 -> 方法: {function_to_method}")
     else:
         print("⚠ 调用关系: 警告 (没有检测到调用关系)")
 
@@ -233,6 +317,76 @@ def validate_parsing(stats: dict) -> bool:
         print("⚠ 实现关系: 警告 (没有检测到实现关系)")
 
     return all_passed
+
+
+def print_all_calls(stats: dict, max_display: int | None = None) -> None:
+    """打印所有解析出的 call 关系"""
+    print(f"\n{'=' * 60}")
+    print("所有 Call 关系解析结果")
+    print(f"{'=' * 60}")
+    
+    calls = stats["calls"]
+    total_count = len(calls)
+    
+    print(f"\n总计: {total_count} 个调用关系\n")
+    
+    if not calls:
+        print("⚠ 没有检测到任何调用关系")
+        return
+    
+    # 按调用者分组统计
+    caller_stats: dict[str, int] = {}
+    callee_stats: dict[str, int] = {}
+    
+    for from_node, to_node in calls:
+        from_qn = _extract_qn(from_node)
+        to_qn = _extract_qn(to_node)
+        caller_stats[from_qn] = caller_stats.get(from_qn, 0) + 1
+        callee_stats[to_qn] = callee_stats.get(to_qn, 0) + 1
+    
+    # 打印统计信息
+    print(f"--- 调用者统计（前 20 个）---")
+    sorted_callers = sorted(caller_stats.items(), key=lambda x: x[1], reverse=True)
+    for caller, count in sorted_callers[:20]:
+        print(f"  {caller}: {count} 次调用")
+    
+    print(f"\n--- 被调用者统计（前 20 个）---")
+    sorted_callees = sorted(callee_stats.items(), key=lambda x: x[1], reverse=True)
+    for callee, count in sorted_callees[:20]:
+        print(f"  {callee}: 被调用 {count} 次")
+    
+    # 打印所有调用关系
+    print(f"\n--- 所有调用关系详情 ---")
+    display_count = max_display if max_display else total_count
+    
+    for idx, (from_node, to_node) in enumerate(calls[:display_count], 1):
+        from_qn = _extract_qn(from_node)
+        to_qn = _extract_qn(to_node)
+        from_label = from_node[0] if isinstance(from_node, tuple) and len(from_node) > 0 else "Unknown"
+        to_label = to_node[0] if isinstance(to_node, tuple) and len(to_node) > 0 else "Unknown"
+        print(f"  {idx:4d}. [{from_label}] {from_qn}")
+        print(f"       -> [{to_label}] {to_qn}")
+    
+    if max_display and total_count > max_display:
+        print(f"\n  ... 还有 {total_count - max_display} 个调用关系未显示")
+    
+    # 按调用者分组显示
+    print(f"\n--- 按调用者分组的调用关系 ---")
+    caller_groups: dict[str, list[str]] = {}
+    for from_node, to_node in calls:
+        from_qn = _extract_qn(from_node)
+        to_qn = _extract_qn(to_node)
+        if from_qn not in caller_groups:
+            caller_groups[from_qn] = []
+        caller_groups[from_qn].append(to_qn)
+    
+    sorted_callers_by_qn = sorted(caller_groups.items())[:30]  # 显示前30个调用者
+    for caller, callees in sorted_callers_by_qn:
+        print(f"\n  {caller} 调用了 {len(callees)} 个方法/函数:")
+        for callee in sorted(set(callees))[:10]:  # 每个调用者最多显示10个被调用者
+            print(f"    -> {callee}")
+        if len(set(callees)) > 10:
+            print(f"    ... 还有 {len(set(callees)) - 10} 个")
 
 
 def search_specific_patterns(stats: dict) -> None:
@@ -322,6 +476,9 @@ def main():
 
     # 打印示例数据
     print_sample_data(stats, sample_size=15)
+
+    # 打印所有 call 关系
+    print_all_calls(stats, max_display=100)  # 最多显示100个详细关系
 
     # 搜索特定模式
     search_specific_patterns(stats)

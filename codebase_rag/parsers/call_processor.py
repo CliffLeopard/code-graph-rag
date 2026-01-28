@@ -296,6 +296,14 @@ class CallProcessor:
                 callee_info = self._resolver.resolve_java_method_call(
                     call_node, module_qn, local_var_types
                 )
+            elif language == cs.SupportedLanguage.KOTLIN and call_node.type in [
+                cs.TS_KOTLIN_CALL_EXPRESSION,
+                cs.TS_KOTLIN_NAVIGATION_EXPRESSION,
+                cs.TS_KOTLIN_CONSTRUCTOR_INVOCATION,
+            ]:
+                callee_info = self._resolver.resolve_kotlin_method_call(
+                    call_node, module_qn, local_var_types
+                )
             else:
                 callee_info = self._resolver.resolve_function_call(
                     call_name, module_qn, local_var_types, class_context

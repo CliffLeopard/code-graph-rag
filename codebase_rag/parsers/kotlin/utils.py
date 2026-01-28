@@ -147,8 +147,8 @@ def extract_import_path(import_node: ASTNode) -> dict[str, str]:
                 imports[imported_name] = imported_path
         return imports
 
-    # (H) Backward compatibility: handle old import_list/import_directive patterns
-    # (H) (may occur in older grammar versions or alternative grammars)
+    # (H) Handle alternative Kotlin import patterns
+    # (H) (may occur in different tree-sitter-kotlin grammar versions)
     if import_node.type in ["import_list", "import_directive"]:
         imports: dict[str, str] = {}
         if import_node.type == "import_list":
@@ -157,7 +157,7 @@ def extract_import_path(import_node: ASTNode) -> dict[str, str]:
                     imports.update(extract_import_path(child))
             return imports
 
-    # (H) Legacy handling for import_directive
+    # (H) Alternative handling for import_directive (different grammar versions)
     imports: dict[str, str] = {}
     imported_path_parts: list[str] = []
     is_wildcard = False
@@ -408,7 +408,7 @@ def _extract_annotation_name(annotation_node: ASTNode) -> str | None:
 def _extract_class_modifiers(class_node: ASTNode) -> list[str]:
     # (H) Kotlin has additional modifiers like 'data', 'sealed', 'open', 'inline', etc.
     # (H) We extract all modifiers and filter later if needed
-    # (H) For now, we allow all modifiers since Kotlin-specific ones won't be in JAVA_CLASS_MODIFIERS
+    # (H) Kotlin class modifiers (data, sealed, enum, etc.)
     # (H) but will still be extracted by extract_from_modifiers_node
     result = extract_from_modifiers_node(
         class_node, frozenset()
@@ -492,14 +492,14 @@ def _determine_class_type(class_node: ASTNode) -> str:
         # (H) Default to class
         return "class"
 
-    # (H) Fallback: use simple string replacement for backward compatibility
+    # (H) Fallback: use simple string replacement for unknown node types
     return node_type.replace("_declaration", "").replace("_class", "")
 
 
 def _get_method_type(method_node: ASTNode) -> str:
     if method_node.type == cs.TS_KOTLIN_CONSTRUCTOR:
-        return cs.JAVA_TYPE_CONSTRUCTOR
-    return cs.JAVA_TYPE_METHOD
+        return "constructor"  # (H) Kotlin constructor
+    return "method"  # (H) Kotlin method/function
 
 
 def _extract_method_return_type(method_node: ASTNode) -> str | None:
@@ -552,7 +552,9 @@ def _extract_method_parameters(method_node: ASTNode) -> list[str]:
                 parameters.append(param_type)
             else:
                 # (H) Kotlin allows type inference - use Any as placeholder
-                parameters.append(cs.JAVA_TYPE_OBJECT)
+                parameters.append(
+                    "Any"
+                )  # (H) Kotlin's top-level type for inferred parameters
 
     return parameters
 
@@ -773,9 +775,11 @@ def extract_method_call_info(call_node: ASTNode) -> JavaMethodCallInfo | None:
 
 def find_package_start_index(parts: list[str]) -> int | None:
     for i, part in enumerate(parts):
+        # (H) Kotlin is a JVM language, check for kotlin path
         if part in cs.JAVA_JVM_LANGUAGES and i > 0:
             return i + 1
 
+        # (H) Kotlin source files are typically in src/main/kotlin or src/kotlin
         if part == cs.JAVA_PATH_SRC and i + 1 < len(parts):
             next_part = parts[i + 1]
 
@@ -785,13 +789,13 @@ def find_package_start_index(parts: list[str]) -> int | None:
             ):
                 return i + 1
 
-            if _is_non_standard_java_src_layout(parts, i):
+            if _is_non_standard_kotlin_src_layout(parts, i):
                 return i + 1
 
     return None
 
 
-def _is_non_standard_java_src_layout(parts: list[str], src_idx: int) -> bool:
+def _is_non_standard_kotlin_src_layout(parts: list[str], src_idx: int) -> bool:
     if src_idx + 2 >= len(parts):
         return False
 

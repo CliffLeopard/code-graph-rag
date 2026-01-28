@@ -1,0 +1,706 @@
+
+============================================================
+分析 Kotlin 项目: /Users/cliffleopard/Desktop/CodeAgent/McpSdk/kotlin-sdk
+============================================================
+
+步骤 1: 清理已存在的项目数据...
+
+项目 'kotlin-sdk' 不存在于数据库中，无需删除
+
+步骤 2: 正在加载解析器...
+✓ Kotlin 解析器已加载
+
+正在解析项目...
+
+============================================================
+解析统计
+============================================================
+
+模块数量: 270
+类数量: 366
+接口数量: 28
+枚举数量: 15
+Object 数量: 0
+方法数量: 1236
+函数数量: 556
+调用关系数量: 214
+继承关系数量: 191
+实现关系数量: 46
+导入关系数量: 29
+
+============================================================
+示例数据
+============================================================
+
+--- 类（前 15 个）---
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.WebSocketConformanceClient.WebSocketClientTransport
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.ClientTest.ClientTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldSchemaClientTest.OldSchemaClientTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldSchemaSseTransportTest.OldSchemaSseTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.SseTransportTest.SseTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.WebSocketTransportTest.WebSocketTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.InMemoryTransportTest.InMemoryTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.OldSchemaInMemoryTransportTest.OldSchemaInMemoryTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.BaseTransportTest.BaseTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.InMemoryTransport.InMemoryTransport
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.OldSchemaBaseTransportTest.OldSchemaBaseTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.OldSchemaInMemoryTransport.OldSchemaInMemoryTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransportTest.StdioClientTransportTest
+
+--- 接口（前 15 个）---
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Transport.Transport
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ErrorCode
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.Method
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.common.Reference
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.common.WithMeta
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.ContentBlock
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.MediaContent
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCMessage
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.RequestId
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.methods.Method
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.notification.ClientNotification
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.notification.Notification
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.notification.NotificationParams
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.notification.ServerNotification
+
+--- 枚举（前 15 个）---
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.TransportType
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.kotlin.KotlinTestBase.KotlinTestBase.TransportKind
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.kotlin.OldSchemaKotlinTestBase.OldSchemaKotlinTestBase.TransportKind
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TransportKind
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.ProcessStream
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.StderrSeverity
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.common.Icon.Theme
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.common.ReferenceType
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.common.Role
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.ContentTypes
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.elicitation.ElicitResult.Action
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.logging.LoggingLevel
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.methods.Method.Defined
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.IncludeContext
+  kotlin-sdk.samples.kotlin-mcp-server.src.test.kotlin.McpServerType.McpServerType
+
+--- 方法（前 15 个）---
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport.close
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport.handleRequest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport.send
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport.start
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport.stream
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.`MCP Client Conformance Tests`
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.`MCP Server Conformance Tests`
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.getRuntimeClasspath
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.getTestClasspath
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.runClientConformanceTest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.runConformanceTest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.runServerConformanceTest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.startServer
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.stopServer
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceTest.ConformanceTest.waitForServerReady
+
+--- 调用关系（前 15 个）---
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] builtin.JSON.stringify
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] builtin.setTimeout
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Function] builtin.setTimeout
+  [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+  [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+
+--- 继承关系（前 15 个）---
+  kotlin-sdk.test-utils.src.main.kotlin.io.modelcontextprotocol.kotlin.test.utils.Retry.RetryExtension extends kotlin-sdk.test-utils.src.main.kotlin.io.modelcontextprotocol.kotlin.test.utils.Retry.InvocationInterceptor
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ErrorCode.Unknown extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ErrorCode
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.ListResourcesRequestBuilder extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.PaginatedRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.ReadResourceRequestBuilder extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.RequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.ListResourceTemplatesRequestBuilder extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.PaginatedRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.UnsubscribeRequestBuilder extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.RequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.SubscribeRequestBuilder extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.RequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.CreateMessageRequestParams extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.RequestParams
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.CreateMessageRequest extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ServerRequest
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.CreateMessageResult extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ClientResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.initialize.dsl.InitializeRequestBuilder extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.initialize.dsl.RequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.ResourceLike extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.WithMeta
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.ResourceTemplate extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.WithMeta
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.TextResourceContents extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ResourceContents
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.UnsubscribeRequest extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ClientRequest
+
+--- 实现关系（前 15 个）---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.Resource implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.ResourceLike
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.BlobResourceContents implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.ResourceContents
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.UnknownResourceContents implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.ResourceContents
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.RequestId.NumberId implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.RequestId
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.RequestId.StringId implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.RequestId
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCRequest implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCMessage
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCNotification implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCMessage
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCResponse implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCMessage
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCError implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.jsonRpc.JSONRPCMessage
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.TextContent implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.MediaContent
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.AudioContent implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.MediaContent
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.ResourceLink implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.ContentBlock
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.ResourceLink implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.ResourceLike
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.EmbeddedResource implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.content.ContentBlock
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.methods.Method.Custom implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.methods.Method
+
+============================================================
+所有 Call 关系解析结果
+============================================================
+
+总计: 214 个调用关系
+
+--- 调用者统计（前 20 个）---
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server: 32 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client: 31 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main: 30 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main: 29 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client: 27 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main: 25 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils: 14 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common: 14 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server: 4 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.MinimalStdioClientTransport.send: 3 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server.main: 2 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.MinimalStdioClientTransport.processBuffer: 2 次调用
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.MinimalStdioClientTransport.start: 1 次调用
+
+--- 被调用者统计（前 20 个）---
+  builtin.console.log: 被调用 54 次
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error: 被调用 47 次
+  builtin.JSON.stringify: 被调用 15 次
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close: 被调用 10 次
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage: 被调用 8 次
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest: 被调用 8 次
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect: 被调用 8 次
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool: 被调用 6 次
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep: 被调用 6 次
+  builtin.setTimeout: 被调用 4 次
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureRegistry.FeatureRegistry.get: 被调用 4 次
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils: 被调用 4 次
+  builtin.parseInt: 被调用 4 次
+  builtin.Object.keys: 被调用 4 次
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.listTools: 被调用 4 次
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureNotificationService.SessionNotificationJob.join: 被调用 4 次
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.callTool: 被调用 4 次
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.processBuffer: 被调用 3 次
+  kotlin-sdk.kotlin-sdk-server.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransportTest.write: 被调用 3 次
+  builtin.JSON.parse: 被调用 3 次
+
+--- 所有调用关系详情 ---
+     1. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+     2. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+     3. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+     4. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+     5. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+     6. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+     7. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+     8. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+     9. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] builtin.JSON.stringify
+    10. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+    11. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    12. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] builtin.setTimeout
+    13. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Function] builtin.setTimeout
+    14. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+    15. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+    16. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+    17. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+    18. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+    19. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+    20. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+    21. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+    22. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+    23. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] builtin.JSON.stringify
+    24. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+    25. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    26. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] builtin.setTimeout
+    27. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Function] builtin.setTimeout
+    28. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+    29. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    30. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    31. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    32. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    33. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    34. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureRegistry.FeatureRegistry.get
+    35. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    36. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureRegistry.FeatureRegistry.get
+    37. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    38. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    39. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    40. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    41. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    42. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    43. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    44. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    45. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.parseInt
+    46. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.parseInt
+    47. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    48. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    49. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    50. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    51. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    52. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    53. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinServerForTsClientSse.OldSchemaKotlinServerForTsClient.isInitializeRequest
+    54. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main.getServer
+    55. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    56. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    57. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    58. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+       -> [Function] builtin.console.log
+    59. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    60. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    61. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    62. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    63. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    64. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureRegistry.FeatureRegistry.get
+    65. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    66. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+    67. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    68. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureRegistry.FeatureRegistry.get
+    69. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    70. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    71. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    72. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    73. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    74. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    75. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    76. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    77. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.parseInt
+    78. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.parseInt
+    79. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    80. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    81. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    82. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    83. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    84. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    85. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinServerForTsClientSse.OldSchemaKotlinServerForTsClient.isInitializeRequest
+    86. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main.getServer
+    87. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    88. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Method] kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    89. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    90. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server
+       -> [Function] builtin.console.log
+    91. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server.main
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    92. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server.main
+       -> [Method] kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    93. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    94. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server
+       -> [Method] kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    95. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server
+       -> [Function] kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    96. [Module] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server
+       -> [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server.main
+    97. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main
+       -> [Function] builtin.console.log
+    98. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main
+       -> [Function] builtin.Object.keys
+    99. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main
+       -> [Function] builtin.console.log
+   100. [Function] kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main
+       -> [Function] builtin.console.log
+
+  ... 还有 114 个调用关系未显示
+
+--- 按调用者分组的调用关系 ---
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client 调用了 27 个方法/函数:
+    -> builtin.JSON.stringify
+    -> builtin.Object.keys
+    -> builtin.console.log
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.callTool
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.listTools
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureNotificationService.SessionNotificationJob.join
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main 调用了 25 个方法/函数:
+    -> builtin.JSON.stringify
+    -> builtin.Object.keys
+    -> builtin.console.log
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.callTool
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.listTools
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureNotificationService.SessionNotificationJob.join
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client 调用了 31 个方法/函数:
+    -> builtin.JSON.parse
+    -> builtin.JSON.stringify
+    -> builtin.Object.keys
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.processBuffer
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.callTool
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.listTools
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    ... 还有 3 个
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.MinimalStdioClientTransport.processBuffer 调用了 2 个方法/函数:
+    -> builtin.JSON.parse
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.MinimalStdioClientTransport.send 调用了 3 个方法/函数:
+    -> builtin.JSON.stringify
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.StreamableHttpServerTransport.reject
+    -> kotlin-sdk.kotlin-sdk-server.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransportTest.write
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.MinimalStdioClientTransport.start 调用了 1 个方法/函数:
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.processBuffer
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main 调用了 29 个方法/函数:
+    -> builtin.JSON.parse
+    -> builtin.JSON.stringify
+    -> builtin.Object.keys
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.processBuffer
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.callTool
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.listTools
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureNotificationService.SessionNotificationJob.join
+    ... 还有 2 个
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common 调用了 14 个方法/函数:
+    -> builtin.JSON.stringify
+    -> builtin.setTimeout
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils 调用了 14 个方法/函数:
+    -> builtin.JSON.stringify
+    -> builtin.setTimeout
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.sse-client.main.tool
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils.sleep
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.Server.sendLoggingMessage
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server 调用了 32 个方法/函数:
+    -> builtin.console.log
+    -> builtin.parseInt
+    -> kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    -> kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinServerForTsClientSse.OldSchemaKotlinServerForTsClient.isInitializeRequest
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main.getServer
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    ... 还有 1 个
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main 调用了 30 个方法/函数:
+    -> builtin.console.log
+    -> builtin.parseInt
+    -> kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport.handleRequest
+    -> kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinServerForTsClientSse.OldSchemaKotlinServerForTsClient.isInitializeRequest
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.client.stdio-client.main.MinimalStdioClientTransport.close
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.sse-server.main.getServer
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+    -> kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.FeatureRegistry.FeatureRegistry.get
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server 调用了 4 个方法/函数:
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server.main
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+    -> kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.tools.error
+
+  kotlin-sdk.integration-test.src.jvmTest.typescript.server.stdio-server.main 调用了 2 个方法/函数:
+    -> kotlin-sdk.integration-test.src.jvmTest.typescript.server.server-common.registerTestUtils
+    -> kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client.connect
+
+============================================================
+特定模式搜索
+============================================================
+
+--- Server 相关类 (57 个) ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ServerCapabilities
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.ServerCapabilities
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.ServerCapabilities.Tools
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.ServerCapabilities.Resources
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.ServerCapabilities.Prompts
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.ServerNotificationPolymorphicSerializer
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.ServerResultPolymorphicSerializer
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.OldSchemaServerToolsTest.OldSchemaServerToolsTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.OldSchemaServerResourcesTest.OldSchemaServerResourcesTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerPromptsTest.ServerPromptsTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerToolsNotificationTest.ServerToolsNotificationTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerToolsTest.ServerToolsTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerResourcesNotificationTest.ServerResourcesNotificationTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerResourcesTest.ServerResourcesTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerPromptsNotificationTest.ServerPromptsNotificationTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerInstructionsTest.ServerInstructionsTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.OldSchemaAbstractServerFeaturesTest.OldSchemaAbstractServerFeaturesTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.OldSchemaServerPromptsTest.OldSchemaServerPromptsTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.server.OldSchemaServerPromptsTest.OldSchemaServerPromptsTest.NoPromptsCapabilitiesTests
+
+--- Client 相关类 (52 个) ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.ClientCapabilities
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.ClientCapabilities
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.ClientCapabilities.Roots
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.capabilities.dsl.ClientCapabilitiesBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.ClientNotificationPolymorphicSerializer
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.ClientResultPolymorphicSerializer
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractStreamableHttpClientTest.AbstractStreamableHttpClientTest
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTest.StreamableHttpClientTest
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldStreamableHttpClientTest.OldStreamableHttpClientTest
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.stdio.StdioClientTransportErrorHandlingTest.StdioClientTransportErrorHandlingTest
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.SSEClientTransport.SseClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpError
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.JsonRpc
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.StderrEvent
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.EOFEvent
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.IOErrorEvent
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.WebSocketClientTransport.WebSocketClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.ClientOptions
+
+--- Transport 相关类 (45 个) ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.TransportSendOptions.TransportSendOptions
+  kotlin-sdk.kotlin-sdk-core.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.ProtocolTest.RecordingTransport
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.stdio.StdioClientTransportErrorHandlingTest.StdioClientTransportErrorHandlingTest
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.SSEClientTransport.SseClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpError
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.JsonRpc
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.StderrEvent
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.EOFEvent
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.IOErrorEvent
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.WebSocketClientTransport.WebSocketClientTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldSchemaStreamableHttpClientTransportTest.OldSchemaStreamableHttpClientTransportTest
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.MockTransport.MockTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractClientTransportLifecycleTest.AbstractClientTransportLifecycleTest
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldSchemaMockTransport.OldSchemaMockTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.stdio.StdioClientTransportLifecycleTest.StdioClientTransportLifecycleTest
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.streamable.http.StreamableHttpClientTransportTest.StreamableHttpClientTransportTest
+
+--- 可能的 Data Class (94 个) ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CreateElicitationResult.Action
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CallToolResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CreateMessageRequest
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CreateElicitationResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.UnknownMethodRequestOrNotification
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.RequestId
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CompatibilityCallToolResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CompleteResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CompleteRequest
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.CreateElicitationRequest
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.ListResourcesRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.ReadResourceRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.ListResourceTemplatesRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.UnsubscribeRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.dsl.SubscribeRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.CreateMessageRequestParams
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.CreateMessageRequest
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.sampling.CreateMessageResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.initialize.dsl.InitializeRequestBuilder
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.resources.UnsubscribeRequest
+
+--- Protocol 相关继承关系 ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.RequestOptions extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.TransportSendOptions.TransportSendOptions
+  kotlin-sdk.kotlin-sdk-core.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.ProtocolTest.TestProtocol extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.Protocol
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.ClientOptions extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.ProtocolOptions
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.Protocol
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.ServerSession.ServerSession extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.Protocol
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.Server.ServerOptions extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.ProtocolOptions
+
+--- Client 相关继承关系 ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.request.ClientRequest extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.Request
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.request.ClientResult extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.request.RequestResult
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.notification.ClientNotification extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.Notification
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.ClientNotificationPolymorphicSerializer extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.JsonContentPolymorphicSerializer
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.ClientResultPolymorphicSerializer extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.types.serializers.JsonContentPolymorphicSerializer
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTest.StreamableHttpClientTest extends kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractStreamableHttpClientTest.AbstractStreamableHttpClientTest
+  kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldStreamableHttpClientTest.OldStreamableHttpClientTest extends kotlin-sdk.kotlin-sdk-client.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractStreamableHttpClientTest.AbstractStreamableHttpClientTest
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.SSEClientTransport.SseClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpError extends kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.Exception
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.WebSocketClientTransport.WebSocketClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.ClientOptions extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.ProtocolOptions
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.Client.Client extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.Protocol
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.stdio.StdioClientTransportLifecycleTest.StdioClientTransportLifecycleTest extends kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractClientTransportLifecycleTest.AbstractClientTransportLifecycleTest
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.streamable.http.StreamingHttpClientTransportLifecycleTest.StreamingHttpClientTransportLifecycleTest extends kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractClientTransportLifecycleTest.AbstractClientTransportLifecycleTest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.WebSocketConformanceClient.WebSocketClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransportTest.StdioClientTransportTest extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransportTest.BaseTransportTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.AbstractKotlinClientTsServerTest.AbstractKotlinClientTsServerTest extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TypeScriptClient.TypeScriptClient extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TypeScriptClient.AutoCloseable
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.AbstractTsClientKotlinServerTest.AbstractTsClientKotlinServerTest extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.OldSchemaAbstractKotlinClientTsServerTest.OldSchemaAbstractKotlinClientTsServerTest extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinClientTsServerTestSse.KotlinClientTsServerTestSse extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.AbstractKotlinClientTsServerTest.AbstractKotlinClientTsServerTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinClientTsServerEdgeCasesTestSse.KotlinClientTsServerEdgeCasesTestSse extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinClientTsServerTestSse.OldSchemaKotlinClientTsServerTestSse extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.OldSchemaAbstractKotlinClientTsServerTest.OldSchemaAbstractKotlinClientTsServerTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinClientTsServerEdgeCasesTestSse.OldSchemaKotlinClientTsServerEdgeCasesTestSse extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.TsClientKotlinServerTestSse.TsClientKotlinServerTestSse extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.AbstractTsClientKotlinServerTest.AbstractTsClientKotlinServerTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinServerForTsClientSse.OldSchemaHttpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.stdio.OldSchemaKotlinClientTsServerEdgeCasesTestStdio.OldSchemaKotlinClientTsServerEdgeCasesTestStdio extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.stdio.KotlinClientTsServerTestStdio.KotlinClientTsServerTestStdio extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.AbstractKotlinClientTsServerTest.AbstractKotlinClientTsServerTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.stdio.KotlinClientTsServerEdgeCasesTestStdio.KotlinClientTsServerEdgeCasesTestStdio extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.TsTestBase.TsTestBase
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.stdio.TsClientKotlinServerTestStdio.TsClientKotlinServerTestStdio extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.AbstractTsClientKotlinServerTest.AbstractTsClientKotlinServerTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.stdio.OldSchemaKotlinClientTsServerTestStdio.OldSchemaKotlinClientTsServerTestStdio extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.OldSchemaAbstractKotlinClientTsServerTest.OldSchemaAbstractKotlinClientTsServerTest
+  kotlin-sdk.samples.kotlin-mcp-client.src.main.kotlin.io.modelcontextprotocol.sample.client.MCPClient.MCPClient extends kotlin-sdk.samples.kotlin-mcp-client.src.main.kotlin.io.modelcontextprotocol.sample.client.MCPClient.AutoCloseable
+
+--- Transport 相关继承关系 ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Protocol.RequestOptions extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.TransportSendOptions.TransportSendOptions
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.SSEClientTransport.SseClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpError extends kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.Exception
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StreamableHttpClientTransport.StreamableHttpClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.WebSocketClientTransport.WebSocketClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.stdio.StdioClientTransportLifecycleTest.StdioClientTransportLifecycleTest extends kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractClientTransportLifecycleTest.AbstractClientTransportLifecycleTest
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.streamable.http.StreamingHttpClientTransportLifecycleTest.StreamingHttpClientTransportLifecycleTest extends kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.AbstractClientTransportLifecycleTest.AbstractClientTransportLifecycleTest
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.WebSocketConformanceClient.WebSocketClientTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport
+  kotlin-sdk.conformance-test.src.test.kotlin.io.modelcontextprotocol.kotlin.sdk.conformance.ConformanceServer.HttpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransportTest.StdioClientTransportTest extends kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransportTest.BaseTransportTest
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.KotlinServerForTsClientSse.HttpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.jvmTest.kotlin.io.modelcontextprotocol.kotlin.sdk.integration.typescript.sse.OldSchemaKotlinServerForTsClientSse.OldSchemaHttpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.InMemoryTransport.InMemoryTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.OldSchemaInMemoryTransport.OldSchemaInMemoryTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.WebSocketTransportTest.WebSocketTransportTest extends kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.BaseTransportTest.BaseTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.SseTransportTest.SseTransportTest extends kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.BaseTransportTest.BaseTransportTest
+  kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldSchemaSseTransportTest.OldSchemaSseTransportTest extends kotlin-sdk.integration-test.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.BaseTransportTest.BaseTransportTest
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.WebSocketMcpServerTransport.WebSocketMcpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.WebSocketMcpTransport.WebSocketMcpTransport
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.SSEServerTransport.SseServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.StreamableHttpServerTransport.StreamableHttpServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+  kotlin-sdk.kotlin-sdk-server.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport.StdioServerTransport extends kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport
+
+--- Transport 接口实现关系 ---
+  kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.AbstractTransport.AbstractTransport implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Transport.Transport
+  kotlin-sdk.kotlin-sdk-core.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.ProtocolTest.RecordingTransport implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Transport.Transport
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.JsonRpc implements kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.StderrEvent implements kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.EOFEvent implements kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event
+  kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event.IOErrorEvent implements kotlin-sdk.kotlin-sdk-client.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.client.StdioClientTransport.StdioClientTransport.Event
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.MockTransport.MockTransport implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Transport.Transport
+  kotlin-sdk.kotlin-sdk-client.src.commonTest.kotlin.io.modelcontextprotocol.kotlin.sdk.client.OldSchemaMockTransport.OldSchemaMockTransport implements kotlin-sdk.kotlin-sdk-core.src.commonMain.kotlin.io.modelcontextprotocol.kotlin.sdk.shared.Transport.Transport
+
+============================================================
+验证结果
+============================================================
+
+✓ 类检测: 通过 (366 个类)
+✓ 接口检测: 通过 (28 个接口)
+✓ 方法检测: 通过 (1236 个方法)
+✓ 调用关系: 通过 (214 个调用)
+  - 唯一调用者: 13
+  - 唯一被调用者: 27
+  - 方法 -> 方法: 1
+  - 函数 -> 函数: 73
+  - 方法 -> 函数: 5
+  - 函数 -> 方法: 27
+✓ 继承关系: 通过 (191 个继承)
+✓ 实现关系: 通过 (46 个实现)
+
+============================================================
+✓ 所有基本验证通过!
+============================================================

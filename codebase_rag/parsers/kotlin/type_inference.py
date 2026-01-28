@@ -90,24 +90,19 @@ class KotlinTypeInferenceEngine(
 
         return local_var_types
 
-    def resolve_java_method_call(
+    def resolve_kotlin_method_call(
         self, call_node: ASTNode, local_var_types: dict[str, str], module_qn: str
     ) -> tuple[str, str] | None:
-        return self._do_resolve_java_method_call(call_node, local_var_types, module_qn)
+        return self._do_resolve_kotlin_method_call(
+            call_node, local_var_types, module_qn
+        )
 
-    def _find_containing_java_class(self, node: ASTNode) -> ASTNode | None:
+    def _find_containing_kotlin_class(self, node: ASTNode) -> ASTNode | None:
+        """Find containing Kotlin class/object/interface."""
         current = node.parent
         while current:
-            match current.type:
-                case (
-                    cs.TS_KOTLIN_CLASS_DECLARATION
-                    | cs.TS_KOTLIN_INTERFACE_DECLARATION
-                    | cs.TS_KOTLIN_ENUM_CLASS
-                    | cs.TS_KOTLIN_OBJECT_DECLARATION
-                    | cs.TS_KOTLIN_COMPANION_OBJECT
-                ):
-                    return current
-                case _:
-                    pass
+            # (H) Kotlin uses class_declaration, object_declaration, etc.
+            if current.type in cs.SPEC_KOTLIN_CLASS_TYPES:
+                return current
             current = current.parent
         return None
