@@ -458,7 +458,8 @@ def search_specific_patterns(stats: dict) -> None:
 
 def main():
     """主函数"""
-    project_path = Path("/Users/cliffleopard/Desktop/CodeAgent/McpSdk/kotlin-sdk")
+    project_path = Path("/Users/cliffleopard/Desktop/code-graph-rag/examples/kotlin-grammer-case")
+    # project_path = Path("/Users/cliffleopard/Desktop/CodeAgent/McpSdk/kotlin-sdk")
 
     if not project_path.exists():
         print(f"错误: 项目路径不存在: {project_path}")

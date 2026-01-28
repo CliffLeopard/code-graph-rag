@@ -235,6 +235,20 @@ class CallProcessor:
                         return method_name
                     object_text = str(object_node.text.decode(cs.ENCODING_UTF8))
                     return f"{object_text}{cs.SEPARATOR_DOT}{method_name}"
+            case (
+                cs.TS_KOTLIN_CALL_EXPRESSION
+                | cs.TS_KOTLIN_NAVIGATION_EXPRESSION
+                | cs.TS_KOTLIN_CONSTRUCTOR_INVOCATION
+            ):
+                from .kotlin.utils import extract_method_call_info
+
+                call_info = extract_method_call_info(call_node)
+                if call_info and call_info.get(cs.FIELD_NAME):
+                    method_name = call_info[cs.FIELD_NAME]
+                    obj = call_info.get(cs.FIELD_OBJECT)
+                    if obj:
+                        return f"{obj}{cs.SEPARATOR_DOT}{method_name}"
+                    return method_name
 
         if name_node := call_node.child_by_field_name(cs.FIELD_NAME):
             if name_node.text is not None:
