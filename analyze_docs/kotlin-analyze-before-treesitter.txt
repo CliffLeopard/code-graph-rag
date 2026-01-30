@@ -1,0 +1,185 @@
+
+============================================================
+分析 Kotlin 项目: grammer_cases\kotlin-grammer-case
+============================================================
+
+步骤 1: 清理已存在的项目数据...
+
+步骤 2: 正在加载解析器...
+✓ 解析器已加载，将按文件扩展名自动选择解析器
+
+正在解析项目...
+
+============================================================
+解析统计
+============================================================
+
+模块数量: 15
+类数量: 3
+接口数量: 0
+枚举数量: 0
+Object 数量: 0
+方法数量: 14
+函数数量: 1
+调用关系数量: 13
+继承关系数量: 0
+实现关系数量: 0
+导入关系数量: 12
+
+============================================================
+所有数据
+============================================================
+
+--- 类（共 3 个）---
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService
+  kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils
+  kotlin-grammer-case.tools.stats.KotlinStats
+
+--- 方法（共 14 个）---
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.chainKotlinAndJava(int,int)
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.useKotlinHelper(int)
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.useKotlinResult(String)
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.useKotlinSingleton()
+  kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.JavaUtils()
+  kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+  kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.format(String)
+  kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.getVersion()
+  kotlin-grammer-case.tools.stats.KotlinStats.__init__
+  kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+  kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+  kotlin-grammer-case.tools.stats.KotlinStats._estimate_calls
+  kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+  kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+
+--- 函数（共 1 个）---
+  kotlin-grammer-case.tools.stats.main
+
+--- 调用关系（共 13 个）---
+  [Function] kotlin-grammer-case.tools.stats.main -> [Class] kotlin-grammer-case.tools.stats.KotlinStats
+  [Function] kotlin-grammer-case.tools.stats.main -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+  [Function] kotlin-grammer-case.tools.stats.main -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+  [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file -> [Method] kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+  [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+  [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+  [Module] kotlin-grammer-case.tools.stats -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+  [Module] kotlin-grammer-case.tools.stats -> [Method] kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+  [Module] kotlin-grammer-case.tools.stats -> [Function] kotlin-grammer-case.tools.stats.main
+  [Module] kotlin-grammer-case.tools.stats -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+  [Module] kotlin-grammer-case.tools.stats -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+  [Module] kotlin-grammer-case.tools.stats -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+  [Module] kotlin-grammer-case.tools.stats -> [Class] kotlin-grammer-case.tools.stats.KotlinStats
+
+--- 导入关系（共 12 个）---
+  kotlin-grammer-case.tools.stats imports os
+  kotlin-grammer-case.tools.stats imports re
+  kotlin-grammer-case.tools.stats imports pathlib
+  kotlin-grammer-case.tools.stats imports datetime
+  kotlin-grammer-case.tools.stats imports collections
+  kotlin-grammer-case.tools.stats imports typing
+  kotlin-grammer-case.tools.stats imports typing
+  kotlin-grammer-case.tools.stats imports typing
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService imports cases.core
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService imports cases.core
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService imports cases.types
+  kotlin-grammer-case.src.main.java.cases.interop.JavaService imports cases.types
+
+============================================================
+所有 Call 关系解析结果
+============================================================
+
+总计: 13 个调用关系
+
+--- 调用者统计（共 3 个）---
+  kotlin-grammer-case.tools.stats: 7 次调用
+  kotlin-grammer-case.tools.stats.main: 3 次调用
+  kotlin-grammer-case.tools.stats.KotlinStats.scan_file: 3 次调用
+
+--- 被调用者统计（共 7 个）---
+  kotlin-grammer-case.tools.stats.KotlinStats: 被调用 2 次
+  kotlin-grammer-case.tools.stats.KotlinStats.scan_file: 被调用 2 次
+  kotlin-grammer-case.tools.stats.KotlinStats.generate_report: 被调用 2 次
+  kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int): 被调用 2 次
+  kotlin-grammer-case.tools.stats.KotlinStats._count_imports: 被调用 2 次
+  kotlin-grammer-case.tools.stats.KotlinStats._count_syntax: 被调用 2 次
+  kotlin-grammer-case.tools.stats.main: 被调用 1 次
+
+--- 所有调用关系详情（共 13 个）---
+     1. [Function] kotlin-grammer-case.tools.stats.main
+       -> [Class] kotlin-grammer-case.tools.stats.KotlinStats
+     2. [Function] kotlin-grammer-case.tools.stats.main
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+     3. [Function] kotlin-grammer-case.tools.stats.main
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+     4. [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+       -> [Method] kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+     5. [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+     6. [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+     7. [Module] kotlin-grammer-case.tools.stats
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+     8. [Module] kotlin-grammer-case.tools.stats
+       -> [Method] kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+     9. [Module] kotlin-grammer-case.tools.stats
+       -> [Function] kotlin-grammer-case.tools.stats.main
+    10. [Module] kotlin-grammer-case.tools.stats
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+    11. [Module] kotlin-grammer-case.tools.stats
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+    12. [Module] kotlin-grammer-case.tools.stats
+       -> [Method] kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+    13. [Module] kotlin-grammer-case.tools.stats
+       -> [Class] kotlin-grammer-case.tools.stats.KotlinStats
+
+--- 按调用者分组的调用关系（共 3 个调用者）---
+
+  kotlin-grammer-case.tools.stats 调用了 7 个方法/函数:
+    -> kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+    -> kotlin-grammer-case.tools.stats.KotlinStats
+    -> kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+    -> kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+    -> kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+    -> kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+    -> kotlin-grammer-case.tools.stats.main
+
+  kotlin-grammer-case.tools.stats.KotlinStats.scan_file 调用了 3 个方法/函数:
+    -> kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)
+    -> kotlin-grammer-case.tools.stats.KotlinStats._count_imports
+    -> kotlin-grammer-case.tools.stats.KotlinStats._count_syntax
+
+  kotlin-grammer-case.tools.stats.main 调用了 3 个方法/函数:
+    -> kotlin-grammer-case.tools.stats.KotlinStats
+    -> kotlin-grammer-case.tools.stats.KotlinStats.generate_report
+    -> kotlin-grammer-case.tools.stats.KotlinStats.scan_file
+
+============================================================
+特定模式搜索
+============================================================
+
+--- Server 相关类（共 0 个）---
+
+--- Client 相关类（共 0 个）---
+
+--- Transport 相关类（共 0 个）---
+
+--- 可能的 Data Class（共 0 个）---
+
+============================================================
+验证结果
+============================================================
+
+✓ 类检测: 通过 (3 个类)
+✗ 接口检测: 失败 (没有检测到任何接口)
+✓ 方法检测: 通过 (14 个方法)
+✓ 调用关系: 通过 (13 个调用)
+  - 唯一调用者: 3
+  - 唯一被调用者: 7
+  - 方法 -> 方法: 3
+  - 函数 -> 方法: 2
+⚠ 继承关系: 警告 (没有检测到继承关系)
+⚠ 实现关系: 警告 (没有检测到实现关系)
+
+============================================================
+✗ 部分验证失败!
+============================================================
+

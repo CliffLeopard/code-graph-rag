@@ -1,8 +1,15 @@
-### 解析单个文件
+### 解析
 
 ```shell
-uv run python scripts/validate_kotlin_parsing.py --project-path examples/Etar-Calendar -f "app/src/main/java/com/android/calendar/settings/CalendarPreferences.kt" -o etar_calendar_prefs_out2.txt
-```
+# 单个文件
+ uv run python local_script/validate_kotlin_parsing.py --project-path ./grammer_cases/kotlin-grammer-case  -o ./analyze_docs/kotlin-analyze-before-treesitter.txt
+
+# 官方解析
+uv run cgr start --repo-path grammer_cases/kotlin-grammer-case --update-graph --clean -o ./analyze_docs/kotlin-analyze-before-treesitter.json
+
+# 语法JSON CALL解析
+uv run python local_script/analyze_special_calls.py
+
 ### Docker执行
 ```shell
 ```

@@ -44,7 +44,6 @@ if sys.platform == "win32":
 # 添加项目根目录到路径
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from codebase_rag import constants as cs
 from codebase_rag.graph_updater import GraphUpdater
 from codebase_rag.main import connect_memgraph
 from codebase_rag.parser_loader import load_parsers
@@ -109,21 +108,16 @@ def analyze_kotlin_project(
     print("步骤 1: 清理已存在的项目数据...")
     # delete_project_if_exists(project_path)
     
-    # 加载解析器
+    # 加载解析器（与 code-graph-rag 一致：按项目文件扩展名自动选择解析器）
     print("\n步骤 2: 正在加载解析器...")
     parsers, queries = load_parsers()
-
-    if cs.SupportedLanguage.KOTLIN not in parsers:
-        print("错误: Kotlin 解析器不可用!")
-        return {}
-
-    print("✓ Kotlin 解析器已加载")
+    print("✓ 解析器已加载，将按文件扩展名自动选择解析器")
 
     # 创建 mock ingestor 来收集所有数据
     mock_ingestor = MagicMock()
 
-    # 仅解析单文件时：解析为相对于 project_path 的绝对路径
-    include_files = None
+    # 仅解析单文件时：通过 exclude_paths 只保留该文件（与 code-graph-rag 的 path 逻辑一致）
+    exclude_paths = None
     if single_file:
         fp = Path(single_file)
         if not fp.is_absolute():
@@ -131,17 +125,27 @@ def analyze_kotlin_project(
         if not fp.is_file():
             print(f"错误: 文件不存在: {fp}", file=sys.stderr)
             return {}
-        include_files = [fp]
+        single_resolved = fp.resolve()
+        exclude_paths = set()
+        for p in project_path.rglob("*"):
+            rel = str(p.relative_to(project_path))
+            if p.is_file():
+                if p.resolve() != single_resolved:
+                    exclude_paths.add(rel)
+            else:
+                if p.resolve() not in single_resolved.parents and p.resolve() != single_resolved:
+                    exclude_paths.add(rel)
+        exclude_paths = frozenset(exclude_paths)
         print(f"✓ 将只解析: {fp.name}")
 
-    # 创建并运行更新器
+    # 创建并运行更新器（与 code-graph-rag 一致：按文件扩展名自动选择解析器）
     print("\n正在解析项目...")
     updater = GraphUpdater(
         ingestor=mock_ingestor,
         repo_path=project_path,
         parsers=parsers,
         queries=queries,
-        include_files=include_files,
+        exclude_paths=exclude_paths,
     )
     updater.run()
 

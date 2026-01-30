@@ -1,0 +1,1986 @@
+{
+  "nodes": [
+    {
+      "node_id": 0,
+      "labels": [
+        "Project"
+      ],
+      "properties": {
+        "name": "kotlin-grammer-case"
+      }
+    },
+    {
+      "node_id": 1,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": ".kotlin",
+        "path": ".kotlin"
+      }
+    },
+    {
+      "node_id": 2,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "sessions",
+        "path": ".kotlin\\sessions"
+      }
+    },
+    {
+      "node_id": 3,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "docs",
+        "path": "docs"
+      }
+    },
+    {
+      "node_id": 4,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "gradle",
+        "path": "gradle"
+      }
+    },
+    {
+      "node_id": 5,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "wrapper",
+        "path": "gradle\\wrapper"
+      }
+    },
+    {
+      "node_id": 6,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "shared",
+        "path": "shared"
+      }
+    },
+    {
+      "node_id": 7,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "src",
+        "path": "shared\\src"
+      }
+    },
+    {
+      "node_id": 8,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "main",
+        "path": "shared\\src\\main"
+      }
+    },
+    {
+      "node_id": 9,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "kotlin",
+        "path": "shared\\src\\main\\kotlin"
+      }
+    },
+    {
+      "node_id": 10,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "shared",
+        "path": "shared\\src\\main\\kotlin\\shared"
+      }
+    },
+    {
+      "node_id": 11,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "src",
+        "path": "src"
+      }
+    },
+    {
+      "node_id": 12,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "main",
+        "path": "src\\main"
+      }
+    },
+    {
+      "node_id": 13,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "java",
+        "path": "src\\main\\java"
+      }
+    },
+    {
+      "node_id": 14,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "cases",
+        "path": "src\\main\\java\\cases"
+      }
+    },
+    {
+      "node_id": 15,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "interop",
+        "path": "src\\main\\java\\cases\\interop"
+      }
+    },
+    {
+      "node_id": 16,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "kotlin",
+        "path": "src\\main\\kotlin"
+      }
+    },
+    {
+      "node_id": 17,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "cases",
+        "path": "src\\main\\kotlin\\cases"
+      }
+    },
+    {
+      "node_id": 18,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "calls",
+        "path": "src\\main\\kotlin\\cases\\calls"
+      }
+    },
+    {
+      "node_id": 19,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "classes",
+        "path": "src\\main\\kotlin\\cases\\classes"
+      }
+    },
+    {
+      "node_id": 20,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "collections",
+        "path": "src\\main\\kotlin\\cases\\collections"
+      }
+    },
+    {
+      "node_id": 21,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "controlflow",
+        "path": "src\\main\\kotlin\\cases\\controlflow"
+      }
+    },
+    {
+      "node_id": 22,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "core",
+        "path": "src\\main\\kotlin\\cases\\core"
+      }
+    },
+    {
+      "node_id": 23,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "coroutines",
+        "path": "src\\main\\kotlin\\cases\\coroutines"
+      }
+    },
+    {
+      "node_id": 24,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "delegation",
+        "path": "src\\main\\kotlin\\cases\\delegation"
+      }
+    },
+    {
+      "node_id": 25,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "extensions",
+        "path": "src\\main\\kotlin\\cases\\extensions"
+      }
+    },
+    {
+      "node_id": 26,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "fp",
+        "path": "src\\main\\kotlin\\cases\\fp"
+      }
+    },
+    {
+      "node_id": 27,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "generics",
+        "path": "src\\main\\kotlin\\cases\\generics"
+      }
+    },
+    {
+      "node_id": 28,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "inline",
+        "path": "src\\main\\kotlin\\cases\\inline"
+      }
+    },
+    {
+      "node_id": 29,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "interop",
+        "path": "src\\main\\kotlin\\cases\\interop"
+      }
+    },
+    {
+      "node_id": 30,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "modules",
+        "path": "src\\main\\kotlin\\cases\\modules"
+      }
+    },
+    {
+      "node_id": 31,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "objects",
+        "path": "src\\main\\kotlin\\cases\\objects"
+      }
+    },
+    {
+      "node_id": 32,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "operators",
+        "path": "src\\main\\kotlin\\cases\\operators"
+      }
+    },
+    {
+      "node_id": 33,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "reflection",
+        "path": "src\\main\\kotlin\\cases\\reflection"
+      }
+    },
+    {
+      "node_id": 34,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "scope",
+        "path": "src\\main\\kotlin\\cases\\scope"
+      }
+    },
+    {
+      "node_id": 35,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "types",
+        "path": "src\\main\\kotlin\\cases\\types"
+      }
+    },
+    {
+      "node_id": 36,
+      "labels": [
+        "Folder"
+      ],
+      "properties": {
+        "name": "tools",
+        "path": "tools"
+      }
+    },
+    {
+      "node_id": 37,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": "",
+        "name": ".git",
+        "path": ".git"
+      }
+    },
+    {
+      "node_id": 38,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": "",
+        "name": ".gitignore",
+        "path": ".gitignore"
+      }
+    },
+    {
+      "node_id": 39,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kts",
+        "name": "build.gradle.kts",
+        "path": "build.gradle.kts"
+      }
+    },
+    {
+      "node_id": 40,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".properties",
+        "name": "gradle.properties",
+        "path": "gradle.properties"
+      }
+    },
+    {
+      "node_id": 41,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": "",
+        "name": "gradlew",
+        "path": "gradlew"
+      }
+    },
+    {
+      "node_id": 42,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".bat",
+        "name": "gradlew.bat",
+        "path": "gradlew.bat"
+      }
+    },
+    {
+      "node_id": 43,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".md",
+        "name": "README.md",
+        "path": "README.md"
+      }
+    },
+    {
+      "node_id": 44,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".md",
+        "name": "rule.md",
+        "path": "rule.md"
+      }
+    },
+    {
+      "node_id": 45,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kts",
+        "name": "settings.gradle.kts",
+        "path": "settings.gradle.kts"
+      }
+    },
+    {
+      "node_id": 46,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".md",
+        "name": "README.md",
+        "path": "docs\\README.md"
+      }
+    },
+    {
+      "node_id": 47,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".md",
+        "name": "STATISTICS.md",
+        "path": "docs\\STATISTICS.md"
+      }
+    },
+    {
+      "node_id": 48,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kts",
+        "name": "build.gradle.kts",
+        "path": "shared\\build.gradle.kts"
+      }
+    },
+    {
+      "node_id": 49,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".py",
+        "name": "stats.py",
+        "path": "tools\\stats.py"
+      }
+    },
+    {
+      "node_id": 50,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".jar",
+        "name": "gradle-wrapper.jar",
+        "path": "gradle\\wrapper\\gradle-wrapper.jar"
+      }
+    },
+    {
+      "node_id": 51,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".properties",
+        "name": "gradle-wrapper.properties",
+        "path": "gradle\\wrapper\\gradle-wrapper.properties"
+      }
+    },
+    {
+      "node_id": 52,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "SharedApi.kt",
+        "path": "shared\\src\\main\\kotlin\\shared\\SharedApi.kt"
+      }
+    },
+    {
+      "node_id": 53,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "Main.kt",
+        "path": "src\\main\\kotlin\\Main.kt"
+      }
+    },
+    {
+      "node_id": 54,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".java",
+        "name": "JavaService.java",
+        "path": "src\\main\\java\\cases\\interop\\JavaService.java"
+      }
+    },
+    {
+      "node_id": 55,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".java",
+        "name": "JavaUtils.java",
+        "path": "src\\main\\java\\cases\\interop\\JavaUtils.java"
+      }
+    },
+    {
+      "node_id": 56,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ComplexCallScenarios.kt",
+        "path": "src\\main\\kotlin\\cases\\calls\\ComplexCallScenarios.kt"
+      }
+    },
+    {
+      "node_id": 57,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CrossClassCallChain.kt",
+        "path": "src\\main\\kotlin\\cases\\calls\\CrossClassCallChain.kt"
+      }
+    },
+    {
+      "node_id": 58,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CrossFileA.kt",
+        "path": "src\\main\\kotlin\\cases\\calls\\CrossFileA.kt"
+      }
+    },
+    {
+      "node_id": 59,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CrossFileB.kt",
+        "path": "src\\main\\kotlin\\cases\\calls\\CrossFileB.kt"
+      }
+    },
+    {
+      "node_id": 60,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CrossFileC.kt",
+        "path": "src\\main\\kotlin\\cases\\calls\\CrossFileC.kt"
+      }
+    },
+    {
+      "node_id": 61,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "DispatchAndOverrides.kt",
+        "path": "src\\main\\kotlin\\cases\\calls\\DispatchAndOverrides.kt"
+      }
+    },
+    {
+      "node_id": 62,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ConstructorsAndInit.kt",
+        "path": "src\\main\\kotlin\\cases\\classes\\ConstructorsAndInit.kt"
+      }
+    },
+    {
+      "node_id": 63,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "InheritanceAndPolymorphism.kt",
+        "path": "src\\main\\kotlin\\cases\\classes\\InheritanceAndPolymorphism.kt"
+      }
+    },
+    {
+      "node_id": 64,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CollectionsAndSequences.kt",
+        "path": "src\\main\\kotlin\\cases\\collections\\CollectionsAndSequences.kt"
+      }
+    },
+    {
+      "node_id": 65,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ControlFlow.kt",
+        "path": "src\\main\\kotlin\\cases\\controlflow\\ControlFlow.kt"
+      }
+    },
+    {
+      "node_id": 66,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "Annotations.kt",
+        "path": "src\\main\\kotlin\\cases\\core\\Annotations.kt"
+      }
+    },
+    {
+      "node_id": 67,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "TopLevelAndImports.kt",
+        "path": "src\\main\\kotlin\\cases\\core\\TopLevelAndImports.kt"
+      }
+    },
+    {
+      "node_id": 68,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CoroutinesAndSuspension.kt",
+        "path": "src\\main\\kotlin\\cases\\coroutines\\CoroutinesAndSuspension.kt"
+      }
+    },
+    {
+      "node_id": 69,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "DelegationPatterns.kt",
+        "path": "src\\main\\kotlin\\cases\\delegation\\DelegationPatterns.kt"
+      }
+    },
+    {
+      "node_id": 70,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ExtensionFunctions.kt",
+        "path": "src\\main\\kotlin\\cases\\extensions\\ExtensionFunctions.kt"
+      }
+    },
+    {
+      "node_id": 71,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "FunctionsAndLambdas.kt",
+        "path": "src\\main\\kotlin\\cases\\fp\\FunctionsAndLambdas.kt"
+      }
+    },
+    {
+      "node_id": 72,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "GenericsAndVariance.kt",
+        "path": "src\\main\\kotlin\\cases\\generics\\GenericsAndVariance.kt"
+      }
+    },
+    {
+      "node_id": 73,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "InlineFunctions.kt",
+        "path": "src\\main\\kotlin\\cases\\inline\\InlineFunctions.kt"
+      }
+    },
+    {
+      "node_id": 74,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "KotlinJavaInterop.kt",
+        "path": "src\\main\\kotlin\\cases\\interop\\KotlinJavaInterop.kt"
+      }
+    },
+    {
+      "node_id": 75,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "CrossModuleUsage.kt",
+        "path": "src\\main\\kotlin\\cases\\modules\\CrossModuleUsage.kt"
+      }
+    },
+    {
+      "node_id": 76,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ModuleSystem.kt",
+        "path": "src\\main\\kotlin\\cases\\modules\\ModuleSystem.kt"
+      }
+    },
+    {
+      "node_id": 77,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ObjectExpressionsAndSingletons.kt",
+        "path": "src\\main\\kotlin\\cases\\objects\\ObjectExpressionsAndSingletons.kt"
+      }
+    },
+    {
+      "node_id": 78,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "OperatorOverloading.kt",
+        "path": "src\\main\\kotlin\\cases\\operators\\OperatorOverloading.kt"
+      }
+    },
+    {
+      "node_id": 79,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ReflectionAndMetadata.kt",
+        "path": "src\\main\\kotlin\\cases\\reflection\\ReflectionAndMetadata.kt"
+      }
+    },
+    {
+      "node_id": 80,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "ScopeFunctions.kt",
+        "path": "src\\main\\kotlin\\cases\\scope\\ScopeFunctions.kt"
+      }
+    },
+    {
+      "node_id": 81,
+      "labels": [
+        "File"
+      ],
+      "properties": {
+        "extension": ".kt",
+        "name": "TypeSystem.kt",
+        "path": "src\\main\\kotlin\\cases\\types\\TypeSystem.kt"
+      }
+    },
+    {
+      "node_id": 82,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "name": "stats.py",
+        "path": "tools\\stats.py",
+        "qualified_name": "kotlin-grammer-case.tools.stats"
+      }
+    },
+    {
+      "node_id": 83,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "os",
+        "path": "os",
+        "qualified_name": "os"
+      }
+    },
+    {
+      "node_id": 84,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "re",
+        "path": "re",
+        "qualified_name": "re"
+      }
+    },
+    {
+      "node_id": 85,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "pathlib",
+        "path": "pathlib.Path",
+        "qualified_name": "pathlib"
+      }
+    },
+    {
+      "node_id": 86,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "collections",
+        "path": "collections.defaultdict",
+        "qualified_name": "collections"
+      }
+    },
+    {
+      "node_id": 87,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "datetime",
+        "path": "datetime.datetime",
+        "qualified_name": "datetime"
+      }
+    },
+    {
+      "node_id": 88,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "typing",
+        "path": "typing.Set",
+        "qualified_name": "typing"
+      }
+    },
+    {
+      "node_id": 89,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "name": "JavaService.java",
+        "path": "src\\main\\java\\cases\\interop\\JavaService.java",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaService"
+      }
+    },
+    {
+      "node_id": 90,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "core",
+        "path": "cases.core.CoreSingleton",
+        "qualified_name": "cases.core"
+      }
+    },
+    {
+      "node_id": 91,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "is_external": true,
+        "name": "types",
+        "path": "cases.types.ResultBox",
+        "qualified_name": "cases.types"
+      }
+    },
+    {
+      "node_id": 92,
+      "labels": [
+        "Module"
+      ],
+      "properties": {
+        "name": "JavaUtils.java",
+        "path": "src\\main\\java\\cases\\interop\\JavaUtils.java",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaUtils"
+      }
+    },
+    {
+      "node_id": 93,
+      "labels": [
+        "Function"
+      ],
+      "properties": {
+        "decorators": [],
+        "docstring": "主函数",
+        "end_line": 299,
+        "is_exported": false,
+        "name": "main",
+        "qualified_name": "kotlin-grammer-case.tools.stats.main",
+        "start_line": 274
+      }
+    },
+    {
+      "node_id": 94,
+      "labels": [
+        "Class"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 271,
+        "is_exported": false,
+        "name": "KotlinStats",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats",
+        "start_line": 21
+      }
+    },
+    {
+      "node_id": 95,
+      "labels": [
+        "Class"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 30,
+        "is_exported": false,
+        "name": "JavaService",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService",
+        "start_line": 12
+      }
+    },
+    {
+      "node_id": 96,
+      "labels": [
+        "Class"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 23,
+        "is_exported": false,
+        "name": "JavaUtils",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils",
+        "start_line": 7
+      }
+    },
+    {
+      "node_id": 97,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 55,
+        "name": "__init__",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats.__init__",
+        "start_line": 22
+      }
+    },
+    {
+      "node_id": 98,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "docstring": "统计导入",
+        "end_line": 125,
+        "name": "_count_imports",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats._count_imports",
+        "start_line": 116
+      }
+    },
+    {
+      "node_id": 99,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "docstring": "统计语法元素",
+        "end_line": 114,
+        "name": "_count_syntax",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats._count_syntax",
+        "start_line": 84
+      }
+    },
+    {
+      "node_id": 100,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "docstring": "估算调用关系（简单启发式）",
+        "end_line": 142,
+        "name": "_estimate_calls",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats._estimate_calls",
+        "start_line": 127
+      }
+    },
+    {
+      "node_id": 101,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "docstring": "扫描单个文件",
+        "end_line": 82,
+        "name": "scan_file",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats.scan_file",
+        "start_line": 57
+      }
+    },
+    {
+      "node_id": 102,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "docstring": "生成统计报告",
+        "end_line": 271,
+        "name": "generate_report",
+        "qualified_name": "kotlin-grammer-case.tools.stats.KotlinStats.generate_report",
+        "start_line": 144
+      }
+    },
+    {
+      "node_id": 103,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 16,
+        "name": "useKotlinHelper",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.useKotlinHelper(int)",
+        "start_line": 14
+      }
+    },
+    {
+      "node_id": 104,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 24,
+        "name": "useKotlinResult",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.useKotlinResult(String)",
+        "start_line": 22
+      }
+    },
+    {
+      "node_id": 105,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 20,
+        "name": "useKotlinSingleton",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.useKotlinSingleton()",
+        "start_line": 18
+      }
+    },
+    {
+      "node_id": 106,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 29,
+        "name": "chainKotlinAndJava",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaService.JavaService.chainKotlinAndJava(int,int)",
+        "start_line": 26
+      }
+    },
+    {
+      "node_id": 107,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 9,
+        "name": "JavaUtils",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.JavaUtils()",
+        "start_line": 9
+      }
+    },
+    {
+      "node_id": 108,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 22,
+        "name": "format",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.format(String)",
+        "start_line": 20
+      }
+    },
+    {
+      "node_id": 109,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 13,
+        "name": "getVersion",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.getVersion()",
+        "start_line": 11
+      }
+    },
+    {
+      "node_id": 110,
+      "labels": [
+        "Method"
+      ],
+      "properties": {
+        "decorators": [],
+        "end_line": 17,
+        "name": "add",
+        "qualified_name": "kotlin-grammer-case.src.main.java.cases.interop.JavaUtils.JavaUtils.add(int,int)",
+        "start_line": 15
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "from_id": 0,
+      "to_id": 1,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 3,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 4,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 6,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 11,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 36,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 37,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 38,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 39,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 40,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 41,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 42,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 43,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 44,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 0,
+      "to_id": 45,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 1,
+      "to_id": 2,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 3,
+      "to_id": 46,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 3,
+      "to_id": 47,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 4,
+      "to_id": 5,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 5,
+      "to_id": 50,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 5,
+      "to_id": 51,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 6,
+      "to_id": 7,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 6,
+      "to_id": 48,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 7,
+      "to_id": 8,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 8,
+      "to_id": 9,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 9,
+      "to_id": 10,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 10,
+      "to_id": 52,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 11,
+      "to_id": 12,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 12,
+      "to_id": 13,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 12,
+      "to_id": 16,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 13,
+      "to_id": 14,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 14,
+      "to_id": 15,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 15,
+      "to_id": 54,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 15,
+      "to_id": 55,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 15,
+      "to_id": 89,
+      "type": "CONTAINS_MODULE",
+      "properties": {}
+    },
+    {
+      "from_id": 15,
+      "to_id": 92,
+      "type": "CONTAINS_MODULE",
+      "properties": {}
+    },
+    {
+      "from_id": 16,
+      "to_id": 17,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 16,
+      "to_id": 53,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 18,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 19,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 20,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 21,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 22,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 23,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 24,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 25,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 26,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 27,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 28,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 29,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 30,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 31,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 32,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 33,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 34,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 17,
+      "to_id": 35,
+      "type": "CONTAINS_FOLDER",
+      "properties": {}
+    },
+    {
+      "from_id": 18,
+      "to_id": 56,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 18,
+      "to_id": 57,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 18,
+      "to_id": 58,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 18,
+      "to_id": 59,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 18,
+      "to_id": 60,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 18,
+      "to_id": 61,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 19,
+      "to_id": 62,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 19,
+      "to_id": 63,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 20,
+      "to_id": 64,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 21,
+      "to_id": 65,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 22,
+      "to_id": 66,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 22,
+      "to_id": 67,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 23,
+      "to_id": 68,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 24,
+      "to_id": 69,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 25,
+      "to_id": 70,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 26,
+      "to_id": 71,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 27,
+      "to_id": 72,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 28,
+      "to_id": 73,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 29,
+      "to_id": 74,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 30,
+      "to_id": 75,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 30,
+      "to_id": 76,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 31,
+      "to_id": 77,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 32,
+      "to_id": 78,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 33,
+      "to_id": 79,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 34,
+      "to_id": 80,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 35,
+      "to_id": 81,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 36,
+      "to_id": 49,
+      "type": "CONTAINS_FILE",
+      "properties": {}
+    },
+    {
+      "from_id": 36,
+      "to_id": 82,
+      "type": "CONTAINS_MODULE",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 83,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 84,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 85,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 86,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 87,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 88,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 93,
+      "type": "DEFINES",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 94,
+      "type": "DEFINES",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 93,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 94,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 102,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 110,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 99,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 98,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 82,
+      "to_id": 101,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 89,
+      "to_id": 90,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 89,
+      "to_id": 91,
+      "type": "IMPORTS",
+      "properties": {}
+    },
+    {
+      "from_id": 89,
+      "to_id": 95,
+      "type": "DEFINES",
+      "properties": {}
+    },
+    {
+      "from_id": 92,
+      "to_id": 96,
+      "type": "DEFINES",
+      "properties": {}
+    },
+    {
+      "from_id": 93,
+      "to_id": 94,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 93,
+      "to_id": 101,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 93,
+      "to_id": 102,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 94,
+      "to_id": 97,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 94,
+      "to_id": 98,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 94,
+      "to_id": 99,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 94,
+      "to_id": 100,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 94,
+      "to_id": 101,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 94,
+      "to_id": 102,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 95,
+      "to_id": 103,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 95,
+      "to_id": 104,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 95,
+      "to_id": 105,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 95,
+      "to_id": 106,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 96,
+      "to_id": 107,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 96,
+      "to_id": 108,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 96,
+      "to_id": 109,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 96,
+      "to_id": 110,
+      "type": "DEFINES_METHOD",
+      "properties": {}
+    },
+    {
+      "from_id": 101,
+      "to_id": 110,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 101,
+      "to_id": 99,
+      "type": "CALLS",
+      "properties": {}
+    },
+    {
+      "from_id": 101,
+      "to_id": 98,
+      "type": "CALLS",
+      "properties": {}
+    }
+  ],
+  "metadata": {
+    "total_nodes": 111,
+    "total_relationships": 123,
+    "exported_at": "2026-01-30T08:48:56.691581+00:00"
+  }
+}

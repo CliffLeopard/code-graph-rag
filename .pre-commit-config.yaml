@@ -1,32 +1,38 @@
 # UTF-8
+# Excluded dirs: update the anchors below to apply everywhere (grammars, grammar_cases, grammer_cases, local_script, analyze_docs)
+_exclude_dirs: &exclude-dirs ^(grammars|grammar_cases|grammer_cases|local_script|analyze_docs)/
+_exclude_with_codec: &exclude-with-codec ^(codec/schema_pb2\.(py|pyi)|grammars/|grammar_cases/|grammer_cases/|local_script/|analyze_docs/).*$
+_exclude_with_pb2: &exclude-with-pb2 ^(codec/.*_pb2\.py|grammars/|grammar_cases/|grammer_cases/|local_script/|analyze_docs/).*$
+_exclude_bandit: &exclude-bandit ^(codebase_rag/tests/|scripts/|grammars/|grammar_cases/|grammer_cases/|local_script/|analyze_docs/)/
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
-        exclude: ^(grammars|grammar_cases|local_script)/
+        exclude: *exclude-dirs
     -   id: end-of-file-fixer
-        exclude: ^(grammars|grammar_cases|local_script)/
+        exclude: *exclude-dirs
     -   id: check-yaml
-        exclude: ^(grammars|grammar_cases|local_script)/
+        exclude: *exclude-dirs
     -   id: check-toml
-        exclude: ^(grammars|grammar_cases|local_script)/
+        exclude: *exclude-dirs
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.12.2
     hooks:
     -   id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-        exclude: ^(codec/schema_pb2\.(py|pyi)|grammars/|grammar_cases/|local_script/).*$
+        exclude: *exclude-with-codec
     -   id: ruff-format
-        exclude: ^(codec/schema_pb2\.(py|pyi)|grammars/|grammar_cases/|local_script/).*$
+        exclude: *exclude-with-codec
 -   repo: local
     hooks:
     -   id: ty
         name: ty check
-        entry: uv run ty check --exclude codebase_rag/tests/ --exclude local_script/ --exclude grammars/ --exclude grammar_cases/
+        entry: uv run ty check --exclude codebase_rag/tests/ --exclude local_script/ --exclude grammars/ --exclude grammar_cases/ --exclude grammer_cases/ --exclude analyze_docs/
         language: system
         types: [python]
-        exclude: ^(codec/.*_pb2\.py|grammars/|grammar_cases/|local_script/).*$
+        exclude: *exclude-with-pb2
         pass_filenames: false
 -   repo: local
     hooks:
@@ -35,7 +41,7 @@ repos:
         entry: uv run python scripts/check_no_docs.py
         language: system
         types: [python]
-        exclude: ^(codec/schema_pb2\.py|grammars/|grammar_cases/|local_script/).*$
+        exclude: *exclude-with-codec
 -   repo: local
     hooks:
     -   id: generate-readme
@@ -50,7 +56,7 @@ repos:
     -   id: bandit
         args: ["-c", "pyproject.toml", "--severity-level", "high"]
         additional_dependencies: ["bandit[toml]"]
-        exclude: ^(codebase_rag/tests/|scripts/|grammars/|grammar_cases/|local_script/)/
+        exclude: *exclude-bandit
 -   repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.2.0
     hooks:
