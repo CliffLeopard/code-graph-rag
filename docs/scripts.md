@@ -10,3 +10,12 @@ uv run python scripts/validate_kotlin_parsing.py --project-path examples/Etar-Ca
 ```shell
 uv run pre-commit run --all-files
 ```
+
+### SubModule
+``` shell
+# 添加
+git submodule add https://github.com/CliffLeopard/kotlin-grammer-case.git grammer_cases/kotlin-grammer-case
+
+# 初始化
+git submodule update --init --recursive
+```
